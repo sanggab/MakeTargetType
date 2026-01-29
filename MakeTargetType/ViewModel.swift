@@ -1,0 +1,135 @@
+//
+//  ViewModel.swift
+//  MakeTargetType
+//
+//  Created by Gab on 1/27/26.
+//
+
+import SwiftUI
+import Combine
+import AppKit
+
+struct AlertModel: Identifiable {
+    let id = UUID()
+    let title: String
+    let message: String
+    
+    init(
+        title: String = "",
+        message: String = ""
+    ) {
+        self.title = title
+        self.message = message
+    }
+}
+
+@Observable
+final class SettingViewModel {
+    private(set) var projectPath = ""
+    private(set) var targetTypeList: [String] = []
+    private(set) var presentAlert = false
+    private(set) var alertModel = AlertModel()
+    private(set) var apiTargetModel = APITargetDescriptor()
+    
+    init() { }
+}
+
+extension SettingViewModel {
+    func selctedProjectPath() {
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = false
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        
+        switch panel.runModal() {
+        case .OK:
+            if let url = panel.url {
+                projectPath = url.path
+                loadTargetTypeList(from: url)
+            }
+        case .cancel:
+            break
+        default:
+            break
+        }
+    }
+}
+
+extension SettingViewModel {
+    func loadTargetTypeList(from projectURL: URL) {
+        let targetTypePath: URL = projectURL.appendingPathComponent("Core/NetWork/Sources/API/TargetType")
+        do {
+            let contents = try FileManager.default.contentsOfDirectory(at: targetTypePath, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles])
+            self.targetTypeList = contents.filter { $0.hasDirectoryPath }.map { $0.lastPathComponent }
+        } catch {
+            print("상갑 logEvent \(#function) error \(error)")
+            self.projectPath = ""
+            self.showAlert(
+                "에러",
+                "TargetType을 찾을 수 없습니다. 경로를 올바르게 설정해주세요"
+            )
+        }
+    }
+}
+
+extension SettingViewModel {
+    func controlAlert(_ isPresented: Bool) {
+        print("상갑 logEvent \(#function) isPresented \(isPresented)")
+        self.presentAlert = isPresented
+    }
+    
+    func showAlert(_ title: String, _ message: String) {
+        self.alertModel = AlertModel(
+            title: title,
+            message: message
+        )
+        print("상갑 logEvent \(#function) alertModel \(alertModel)")
+        self.presentAlert = true
+    }
+    
+    func showAlert(_ model: AlertModel) {
+        self.alertModel = model
+        print("상갑 logEvent \(#function) alertModel \(alertModel)")
+        self.presentAlert = true
+    }
+    
+    func clearAlertModel() {
+        self.alertModel = AlertModel()
+        print("상갑 logEvent \(#function) alertModel \(alertModel)")
+    }
+}
+
+extension SettingViewModel {
+    func updateCaseName(_ name: String) {
+        // 중복 업데이트 방지 (가장 근본적인 해결책)
+        guard self.apiTargetModel.caseName != name else { return }
+        
+        self.apiTargetModel.caseName = name
+        print("상갑 logEvent \(#function) caseName \(self.apiTargetModel.caseName)")
+    }
+    
+    func updateBaseUrl(_ url: String) {
+        guard self.apiTargetModel.baseUrl != url else { return }
+        self.apiTargetModel.baseUrl = url
+        print("상갑 logEvent \(#function) baseUrl \(self.apiTargetModel.baseUrl)")
+    }
+    
+    func updatePath(_ path: String) {
+        guard self.apiTargetModel.path != path else { return }
+        self.apiTargetModel.path = path
+        print("상갑 logEvent \(#function) path \(self.apiTargetModel.path)")
+    }
+    
+    func updateHTTPMethod(_ method: String) {
+        guard self.apiTargetModel.httpMethod.rawValue != method else { return }
+        guard let httpMethod = HTTPMethod(rawValue: method) else { return }
+        self.apiTargetModel.httpMethod = httpMethod
+        print("상갑 logEvent \(#function) httpMethod \(self.apiTargetModel.httpMethod)")
+    }
+    
+    func updateHeaders(_ headers: [String: String]) {
+        guard self.apiTargetModel.headers != headers else { return }
+        self.apiTargetModel.headers = headers
+        print("상갑 logEvent \(#function) httpMethod \(self.apiTargetModel.httpMethod)")
+    }
+}
