@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		EF12365F2F2CA6D000B5766A /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = EF12365E2F2CA6D000B5766A /* Alamofire */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		EF02335E2F28777600DDD81D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EF12365F2F2CA6D000B5766A /* Alamofire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,7 @@
 			);
 			name = MakeTargetType;
 			packageProductDependencies = (
+				EF12365E2F2CA6D000B5766A /* Alamofire */,
 			);
 			productName = MakeTargetType;
 			productReference = EF0233502F28777400DDD81D /* MakeTargetType.app */;
@@ -195,6 +201,9 @@
 			);
 			mainGroup = EF0233472F28777300DDD81D;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				EF12365D2F2CA6D000B5766A /* XCRemoteSwiftPackageReference "Alamofire" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = EF0233512F28777400DDD81D /* Products */;
 			projectDirPath = "";
@@ -615,6 +624,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		EF12365D2F2CA6D000B5766A /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.11.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		EF12365E2F2CA6D000B5766A /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EF12365D2F2CA6D000B5766A /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = EF0233482F28777300DDD81D /* Project object */;
 }
