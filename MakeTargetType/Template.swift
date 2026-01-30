@@ -7,10 +7,15 @@
 
 import Foundation
 
-func makeTargetTypeDefault(A: String) -> String {
+func makeTargetTypeDefault(displayName: String) -> String {
+    // Fallback for compatibility if needed, but we prefer the one with full model
+    return ""
+}
+
+func makeTargetTypeDefault(APITargetDescriptor model: APITargetDescriptor) -> String {
     """
     //
-    //  \(A)TargetType.swift
+    //  \(model.displayName)TargetType.swift
     //  NetworkCore
     //
     //  Created by FileGeneratorUI on \(today()).
@@ -18,52 +23,47 @@ func makeTargetTypeDefault(A: String) -> String {
     //
     import Foundation
     
-    public enum \(A)TargetType {
-        case test
+    public enum \(model.displayName)TargetType {
+        case \(model.caseName)
     }
     
-    public extension \(A)TargetType: TargetType {
-        var baseURL: URL {
+    extension \(model.displayName)TargetType: TargetType {
+        public var baseURL: URL {
             switch self {
-            case .test:
-                return URL(string: "")!
+            case .\(model.caseName):
+                return URL(string: "\(model.baseUrl)")!
             }
         }
     
-        var path: String {
+        public var path: String {
             switch self {
-            case .uploadPhoto:
-                return ""
+            case .\(model.caseName):
+                return "\(model.path)"
             }
         }
     
-        var method: HTTPMethod {
+        public var method: HTTPMethod {
             switch self {
-            case .test:
-                return .get
+            case .\(model.caseName):
+                return .\(model.httpMethod.rawValue.lowercased())
             }
         }
         
-        var task: NetworkTask {
+        public var task: NetworkTask {
             switch self {
-            case .test:
+            case .\(model.caseName):
                 return .requestPlain
             }
         }
         
-        var headers: [String : String]? {
+        public var headers: [String : String]? {
             switch self {
-            case .test:
+            case .\(model.caseName):
                 return [
-                    "Content-Type": "application/json",
-                    "Accept-Language": "ko"
+                    \(model.headers.map { "\"\($0.key)\": \"\($0.value)\"" }.joined(separator: ",\n\t\t\t\t"))
                 ]
             }
         }
     }
     """
-}
-
-func makeTargetType() -> String {
-    return ""
 }

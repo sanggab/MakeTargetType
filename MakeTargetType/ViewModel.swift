@@ -26,6 +26,7 @@ struct AlertModel: Identifiable {
 @Observable
 final class SettingViewModel {
     private(set) var projectPath = ""
+    private(set) var projectURL: URL?
     private(set) var targetTypeList: [String] = []
     private(set) var presentAlert = false
     private(set) var alertModel = AlertModel()
@@ -61,6 +62,7 @@ extension SettingViewModel {
         case .OK:
             if let url = panel.url {
                 projectPath = url.path
+                projectURL = url
                 loadTargetTypeList(from: url)
             }
         case .cancel:
@@ -177,6 +179,59 @@ extension SettingViewModel {
         if let index = self.apiTargetModel.headers.firstIndex(where: { $0.key == key }) {
             self.apiTargetModel.headers.remove(at: index)
             print("상갑 logEvent \(#function) removed headers key: \(key)")
+        }
+    }
+    
+    func createTargetTypeFile() {
+        guard let baseProjectURL = self.projectURL else {
+            self.showAlert("에러", "프로젝트 경로가 설정되지 않았습니다.")
+            return
+        }
+        
+        let targetModel = self.apiTargetModel
+        
+        guard !targetModel.displayName.isEmpty else {
+            self.showAlert("에러", "Display Name(모델 네이밍)을 입력해주세요.")
+            return
+        }
+        
+        let targetTypeName = "\(targetModel.displayName)TargetType"
+        let fileName = "\(targetTypeName).swift"
+        // Construct path: projectPath/Core/NetWork/Sources/API/TargetType/displayName
+        let directoryPath = baseProjectURL.appendingPathComponent("Core/NetWork/Sources/API/TargetType").appendingPathComponent(targetModel.displayName)
+        
+        let fileURL = directoryPath.appendingPathComponent(fileName)
+        
+        let fileManager = FileManager.default
+        
+        do {
+            if !fileManager.fileExists(atPath: directoryPath.path) {
+                try fileManager.createDirectory(at: directoryPath, withIntermediateDirectories: true, attributes: nil)
+            }
+        } catch {
+             showAlert("에러", "폴더 생성 실패: \(error.localizedDescription)")
+             return
+        }
+        
+        if fileManager.fileExists(atPath: fileURL.path) {
+            self.showAlert("실패", "\(fileName) 파일이 이미 존재합니다.")
+            return
+        }
+        
+        // Ensure makeTargetTypeDefault returns String. It's in Template.swift (global func inferred).
+        let content = makeTargetTypeDefault(APITargetDescriptor: apiTargetModel)
+        
+        do {
+            print("상갑 logEvent \(#function) filURL \(fileURL.path)")
+            
+            try content.write(to: fileURL, atomically: true, encoding: .utf8)
+            print("상갑 logEvent \(#function) success created \(fileURL.path)")
+            self.showAlert("성공", "\(fileName) 파일이 생성되었습니다.")
+            // Refresh list (reload from root project path)
+            self.loadTargetTypeList(from: baseProjectURL)
+        } catch {
+            print("상갑 logEvent \(#function) error \(error)")
+            self.showAlert("에러", "파일 생성 중 오류가 발생했습니다.\n\(error.localizedDescription)")
         }
     }
 }

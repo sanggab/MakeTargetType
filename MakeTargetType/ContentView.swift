@@ -161,20 +161,42 @@ extension ContentView {
                         ForEach(viewModel.apiTargetModel.headers) { item in
                             HStack(spacing: 4) {
                                 Text("\(item.key): \(item.value)")
-                                    .font(.system(size: 16))
+                                    .font(.caption)
                                     .padding(.vertical, 4)
                                     .padding(.horizontal, 8)
-                                    .background(.gray.opacity(0.1))
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                            }
-                            .onTapGesture {
-                                viewModel.removeHeader(id: item.id)
+                                    .background(Color.secondary.opacity(0.1))
+                                    .cornerRadius(8)
+                                
+                                Button {
+                                    viewModel.removeHeader(id: item.id)
+                                } label: {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .font(.caption)
+                                        .foregroundStyle(.gray)
+                                }
+                                .buttonStyle(.plain)
                             }
                         }
                     }
                     .padding(.leading, 100)
+                    .padding(.top, 4)
                 }
             }
+            
+            HStack {
+                Spacer()
+                
+                Button {
+                    viewModel.createTargetTypeFile()
+                } label: {
+                    Text("파일 생성하기")
+                }
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+                .disabled(viewModel.apiTargetModel.displayName.isEmpty || viewModel.projectPath.isEmpty)
+            }
+            .padding(.top, 20)
         }
     }
 }

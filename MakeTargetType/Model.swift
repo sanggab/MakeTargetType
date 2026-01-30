@@ -46,23 +46,23 @@ struct APITargetDescriptor {
 
 public enum HTTPMethod: String, CaseIterable, Sendable {
     /// `GET` method.
-    case get = "GET"
+    case get = "get"
     /// `POST` method.
-    case post = "POST"
+    case post = "post"
     /// `CONNECT` method.
-    case connect = "CONNECT"
+    case connect = "connect"
     /// `DELETE` method.
-    case delete = "DELETE"
+    case delete = "delete"
     /// `HEAD` method.
-    case head = "HEAD"
+    case head = "head"
     /// `OPTIONS` method.
-    case options = "OPTIONS"
+    case options = "options"
     /// `PATCH` method.
-    case patch = "PATCH"
+    case patch = "patch"
     /// `PUT` method.
-    case put = "PUT"
+    case put = "put"
     /// `QUERY` method.
-    case query = "QUERY"
+    case query = "query"
     /// `TRACE` method.
-    case trace = "TRACE"
+    case trace = "trace"
 }
