@@ -100,11 +100,15 @@ extension SettingViewModel {
 }
 
 extension SettingViewModel {
-    func updateCaseName(_ name: String) {
-        // 중복 업데이트 방지 (가장 근본적인 해결책)
-        guard self.apiTargetModel.caseName != name else { return }
-        
-        self.apiTargetModel.caseName = name
+    func updateDisplayName(_ displayName: String) {
+        guard self.apiTargetModel.displayName != displayName else { return }
+        self.apiTargetModel.displayName = displayName
+        print("상갑 logEvent \(#function) displayName \(self.apiTargetModel.displayName)")
+    }
+    
+    func updateCaseName(_ caseName: String) {
+        guard self.apiTargetModel.caseName != caseName else { return }
+        self.apiTargetModel.caseName = caseName
         print("상갑 logEvent \(#function) caseName \(self.apiTargetModel.caseName)")
     }
     

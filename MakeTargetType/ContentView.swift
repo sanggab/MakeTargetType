@@ -17,82 +17,14 @@ struct ContentView: View {
         let _ = Self._printChanges()
         HStack(alignment: .center) {
             VStack(alignment: .leading) {
-                HStack {
-                    Text("프로젝트 경로")
-                    
-                    Button {
-                        viewModel.selctedProjectPath()
-                    } label: {
-                        Text("경로: \(viewModel.projectPath)")
-                    }
-                }
+                
+                selectedProjectPathView
                 
                 Divider()
                 
-                if !viewModel.targetTypeList.isEmpty {
-                    HStack {
-                        Text("TargetType 리스트: ")
-                        
-                        ScrollView(.horizontal) {
-                            HStack {
-                                ForEach(viewModel.targetTypeList, id: \.self) { id in
-                                    Button {
-                                        
-                                    } label: {
-                                        Text(id)
-                                    }
-                                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                                }
-                            }
-                        }
-                        .scrollIndicators(.hidden)
-                    }
-                    
-                    Divider()
-                }
+                targetTypeListView
                 
-                VStack {
-                    HStack {
-                        Text("case: ")
-                        
-                        TextField("enum case 이름", text: bindingCaseName)
-                    }
-                    
-                    HStack {
-                        Text("baseURL: ")
-                        
-                        TextField("baseURL 주소", text: bindingBaseUrl)
-                    }
-                    
-                    HStack {
-                        Text("path: ")
-                        
-                        TextField("path 주소", text: bindingPath)
-                    }
-                    
-                    HStack {
-                        Text("httpMethod: ")
-                        
-                        Menu(viewModel.apiTargetModel.httpMethod.rawValue) {
-                            ForEach(HTTPMethod.allCases, id: \.self) { method in
-                                Button {
-                                    viewModel.updateHTTPMethod(method.rawValue)
-                                } label: {
-                                    Text(method.rawValue)
-                                }
-                            }
-                        }
-                        
-                        Spacer()
-                    }
-                    
-                    HStack {
-                        Text("case: ")
-                        
-                        TextField("enum case 이름", text: bindingCaseName)
-                    }
-                }
-                
+                inputList
             }
             .padding(.all, 10)
         }
@@ -111,10 +43,124 @@ struct ContentView: View {
 }
 
 extension ContentView {
+    @ViewBuilder
+    var selectedProjectPathView: some View {
+        HStack {
+            Text("프로젝트 경로")
+            
+            Button {
+                viewModel.selctedProjectPath()
+            } label: {
+                Text("경로: \(viewModel.projectPath)")
+            }
+        }
+    }
+}
+
+extension ContentView {
+    @ViewBuilder
+    var targetTypeListView: some View {
+        if !viewModel.targetTypeList.isEmpty {
+            HStack {
+                Text("TargetType 리스트: ")
+                
+                ScrollView(.horizontal) {
+                    HStack {
+                        ForEach(viewModel.targetTypeList, id: \.self) { id in
+                            Button {
+                                viewModel.updateDisplayName(id)
+                            } label: {
+                                Text(id)
+                            }
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        }
+                    }
+                }
+                .scrollIndicators(.hidden)
+            }
+            
+            Divider()
+        } else {
+            EmptyView()
+        }
+    }
+}
+
+extension ContentView {
+    @ViewBuilder
+    var inputList: some View {
+        VStack {
+            HStack {
+                Text("모델 네이밍")
+                    .frame(width: 100)
+                
+                TextField("ex) AppTargetType에서 App에 해당하는 부분", text: bindingDisplayName)
+            }
+            
+            HStack {
+                Text("case")
+                    .frame(width: 100)
+                
+                TextField("enum case 이름", text: bindingCaseName)
+            }
+            
+            HStack {
+                Text("baseURL")
+                    .frame(width: 100)
+                
+                TextField("baseURL 주소", text: bindingBaseUrl)
+            }
+            
+            HStack {
+                Text("path")
+                    .frame(width: 100)
+                
+                TextField("path 주소", text: bindingPath)
+            }
+            
+            HStack {
+                Text("httpMethod")
+                    .frame(width: 100)
+                
+                Menu(viewModel.apiTargetModel.httpMethod.rawValue) {
+                    ForEach(HTTPMethod.allCases, id: \.self) { method in
+                        Button {
+                            viewModel.updateHTTPMethod(method.rawValue)
+                        } label: {
+                            Text(method.rawValue)
+                        }
+                    }
+                }
+                
+                Spacer()
+            }
+            
+            HStack {
+                Text("httpHeaders")
+                    .frame(width: 100)
+                
+                VStack {
+                    TextField("Key", text: bindingCaseName)
+                    
+                    TextField("Value", text: bindingCaseName)
+                }
+            }
+        }
+    }
+}
+
+extension ContentView {
     var isPresented: Binding<Bool> {
         Binding(
             get: { viewModel.presentAlert },
             set: { viewModel.controlAlert($0) }
+        )
+    }
+    
+    var bindingDisplayName: Binding<String> {
+        Binding(
+            get: { viewModel.apiTargetModel.displayName },
+            set: { viewModel.updateDisplayName($0) }
         )
     }
     
@@ -145,13 +191,6 @@ extension ContentView {
             set: { viewModel.updateHTTPMethod($0) }
         )
     }
-    
-//    var bindingHeaders: Binding<[String: String]> {
-//        Binding(
-//            get: { viewModel.apiTargetModel.caseName },
-//            set: { viewModel.updateCaseName($0) }
-//        )
-//    }
 }
 
 #Preview {
