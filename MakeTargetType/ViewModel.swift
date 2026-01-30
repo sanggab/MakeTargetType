@@ -31,7 +31,23 @@ final class SettingViewModel {
     private(set) var alertModel = AlertModel()
     private(set) var apiTargetModel = APITargetDescriptor()
     
-    init() { }
+    private(set) var headerKey = ""
+    private(set) var headerValue = ""
+    
+    init() {
+        let defaultHeaderItem = [
+            HeaderItem(
+                key: "Content-Type",
+                value: "application/json"
+            ),
+            HeaderItem(
+                key: "Accept-Language",
+                value: "ko"
+            ),
+        ]
+        
+        self.apiTargetModel.headers.append(contentsOf: defaultHeaderItem)
+    }
 }
 
 extension SettingViewModel {
@@ -131,9 +147,36 @@ extension SettingViewModel {
         print("상갑 logEvent \(#function) httpMethod \(self.apiTargetModel.httpMethod)")
     }
     
-    func updateHeaders(_ headers: [String: String]) {
-        guard self.apiTargetModel.headers != headers else { return }
-        self.apiTargetModel.headers = headers
-        print("상갑 logEvent \(#function) httpMethod \(self.apiTargetModel.httpMethod)")
+    func updateHeaderKey(key: String) {
+        self.headerKey = key
+    }
+    
+    func updateHeaderValue(value: String) {
+        self.headerValue = value
+    }
+    
+    func updateAPITargetHeader() {
+        guard !self.headerKey.isEmpty, !self.headerValue.isEmpty else { return }
+        // Array based addition
+        let newItem = HeaderItem(key: self.headerKey, value: self.headerValue)
+        self.apiTargetModel.headers.append(newItem)
+        print("상갑 logEvent \(#function) added httpHeaders \(self.headerKey): \(self.headerValue)")
+        self.headerKey = ""
+        self.headerValue = ""
+    }
+    
+    func removeHeader(id: UUID) {
+        if let index = self.apiTargetModel.headers.firstIndex(where: { $0.id == id }) {
+            self.apiTargetModel.headers.remove(at: index)
+            print("상갑 logEvent \(#function) removed headers id: \(id)")
+        }
+    }
+    
+    func removeHeader(key: String) {
+        // Fallback or convenient removal by key (removes first occurrence)
+        if let index = self.apiTargetModel.headers.firstIndex(where: { $0.key == key }) {
+            self.apiTargetModel.headers.remove(at: index)
+            print("상갑 logEvent \(#function) removed headers key: \(key)")
+        }
     }
 }
