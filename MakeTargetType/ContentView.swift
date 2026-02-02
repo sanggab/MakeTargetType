@@ -90,114 +90,169 @@ extension ContentView {
     @ViewBuilder
     var inputList: some View {
         VStack {
-            HStack {
-                Text("모델 네이밍")
-                    .frame(width: 100)
-                
-                TextField("ex) AppTargetType에서 App에 해당하는 부분", text: bindingDisplayName)
-            }
+            displayNameView
             
-            HStack {
-                Text("case")
-                    .frame(width: 100)
-                
-                TextField("enum case 이름", text: bindingCaseName)
-            }
+            caseNameView
             
-            HStack {
-                Text("baseURL")
-                    .frame(width: 100)
-                
-                TextField("baseURL 주소", text: bindingBaseUrl)
-            }
+            baseUrlView
             
-            HStack {
-                Text("path")
-                    .frame(width: 100)
-                
-                TextField("path 주소", text: bindingPath)
-            }
+            pathView
             
-            HStack {
-                Text("httpMethod")
-                    .frame(width: 100)
-                
-                Menu(viewModel.apiTargetModel.httpMethod.rawValue) {
-                    ForEach(HTTPMethod.allCases, id: \.self) { method in
-                        Button {
-                            viewModel.updateHTTPMethod(method.rawValue)
-                        } label: {
-                            Text(method.rawValue)
-                        }
-                    }
-                }
-                
-                Spacer()
-            }
+            httpMethodView
             
-            VStack(alignment: .leading) {
-                HStack {
-                    Text("headers")
-                        .frame(width: 100)
-                    
-                    VStack {
-                        TextField("Key", text: bindingHeaderKey)
-                            .textFieldStyle(.roundedBorder)
-                        
-                        TextField("Value", text: bindingHeaderValue)
-                            .textFieldStyle(.roundedBorder)
-                    }
-                    
+            headersView
+            
+            createTagetTypeFileView
+        }
+    }
+}
+
+extension ContentView {
+    @ViewBuilder
+    var displayNameView: some View {
+        HStack {
+            Text("모델 네이밍")
+                .frame(width: 100)
+            
+            TextField("ex) AppTargetType에서 App에 해당하는 부분", text: bindingDisplayName)
+        }
+    }
+}
+
+extension ContentView {
+    @ViewBuilder
+    var caseNameView: some View {
+        HStack {
+            Text("case")
+                .frame(width: 100)
+            
+            TextField("enum case 이름", text: bindingCaseName)
+        }
+    }
+}
+
+extension ContentView {
+    @ViewBuilder
+    var baseUrlView: some View {
+        HStack {
+            Text("baseURL")
+                .frame(width: 100)
+            
+            TextField("baseURL 주소", text: bindingBaseUrl)
+        }
+    }
+}
+
+extension ContentView {
+    @ViewBuilder
+    var pathView: some View {
+        HStack {
+            Text("path")
+                .frame(width: 100)
+            
+            TextField("path 주소", text: bindingPath)
+        }
+    }
+}
+
+extension ContentView {
+    @ViewBuilder
+    var httpMethodView: some View {
+        HStack {
+            Text("httpMethod")
+                .frame(width: 100)
+            
+            Menu(viewModel.apiTargetModel.httpMethod.rawValue) {
+                ForEach(HTTPMethod.allCases, id: \.self) { method in
                     Button {
-                        viewModel.updateAPITargetHeader()
+                        viewModel.updateHTTPMethod(method.rawValue)
                     } label: {
-                        Image(systemName: "plus.circle.fill")
+                        Text(method.rawValue)
                     }
-                    .disabled(self.viewModel.headerKey.isEmpty || self.viewModel.headerValue.isEmpty)
-                }
-                
-                if !viewModel.apiTargetModel.headers.isEmpty {
-                    FlowLayout(spacing: 8) {
-                        ForEach(viewModel.apiTargetModel.headers) { item in
-                            HStack(spacing: 4) {
-                                Text("\(item.key): \(item.value)")
-                                    .font(.caption)
-                                    .padding(.vertical, 4)
-                                    .padding(.horizontal, 8)
-                                    .background(Color.secondary.opacity(0.1))
-                                    .cornerRadius(8)
-                                
-                                Button {
-                                    viewModel.removeHeader(id: item.id)
-                                } label: {
-                                    Image(systemName: "xmark.circle.fill")
-                                        .font(.caption)
-                                        .foregroundStyle(.gray)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                    }
-                    .padding(.leading, 100)
-                    .padding(.top, 4)
                 }
             }
             
+            Spacer()
+        }
+    }
+}
+
+//extension ContentView {
+//    var taskView: some View {
+//        
+//    }
+//}
+
+extension ContentView {
+    @ViewBuilder
+    var headersView: some View {
+        VStack(alignment: .leading) {
             HStack {
-                Spacer()
+                Text("headers")
+                    .frame(width: 100)
+                
+                VStack {
+                    TextField("Key", text: bindingHeaderKey)
+                        .textFieldStyle(.roundedBorder)
+                    
+                    TextField("Value", text: bindingHeaderValue)
+                        .textFieldStyle(.roundedBorder)
+                }
                 
                 Button {
-                    viewModel.createTargetTypeFile()
+                    viewModel.updateAPITargetHeader()
                 } label: {
-                    Text("파일 생성하기")
+                    Image(systemName: "plus.circle.fill")
                 }
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(8)
-                .disabled(viewModel.apiTargetModel.displayName.isEmpty || viewModel.projectPath.isEmpty)
+                .disabled(self.viewModel.headerKey.isEmpty || self.viewModel.headerValue.isEmpty)
             }
-            .padding(.top, 20)
+            
+            if !viewModel.apiTargetModel.headers.isEmpty {
+                FlowLayout(spacing: 8) {
+                    ForEach(viewModel.apiTargetModel.headers) { item in
+                        HStack(spacing: 4) {
+                            Text("\(item.key): \(item.value)")
+                                .font(.caption)
+                                .padding(.vertical, 4)
+                                .padding(.horizontal, 8)
+                                .background(Color.secondary.opacity(0.1))
+                                .cornerRadius(8)
+                            
+                            Button {
+                                viewModel.removeHeader(id: item.id)
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.caption)
+                                    .foregroundStyle(.gray)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+                .padding(.leading, 100)
+                .padding(.top, 4)
+            }
         }
+    }
+}
+
+extension ContentView {
+    @ViewBuilder
+    var createTagetTypeFileView: some View {
+        HStack {
+            Spacer()
+            
+            Button {
+                viewModel.createTargetTypeFile()
+            } label: {
+                Text("파일 생성하기")
+            }
+            .background(Color.blue)
+            .foregroundColor(.white)
+            .cornerRadius(8)
+            .disabled(viewModel.apiTargetModel.displayName.isEmpty || viewModel.projectPath.isEmpty)
+        }
+        .padding(.top, 20)
     }
 }
 
@@ -256,74 +311,6 @@ extension ContentView {
             get: { viewModel.headerValue },
             set: { viewModel.updateHeaderValue(value: $0) }
         )
-    }
-}
-
-fileprivate struct FlowLayout: Layout {
-    var spacing: CGFloat = 8
-    
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let rows = computeRows(proposal: proposal, subviews: subviews)
-        let height = rows.reduce(CGFloat.zero) { $0 + $1.height + spacing } - (rows.isEmpty ? 0 : spacing)
-        let width = rows.reduce(CGFloat.zero) { max($0, $1.width) }
-        return CGSize(width: width, height: height)
-    }
-    
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        let rows = computeRows(proposal: proposal, subviews: subviews)
-        var y = bounds.minY
-        for row in rows {
-            var x = bounds.minX
-            for item in row.items {
-                item.view.place(at: CGPoint(x: x, y: y), proposal: .unspecified)
-                x += item.size.width + spacing
-            }
-            y += row.height + spacing
-        }
-    }
-    
-    private func computeRows(proposal: ProposedViewSize, subviews: Subviews) -> [Row] {
-        var rows: [Row] = []
-        var currentRow = Row()
-        let maxWidth = proposal.width ?? .infinity
-        
-        for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
-            if currentRow.width + size.width + spacing > maxWidth {
-                rows.append(currentRow)
-                currentRow = Row()
-            }
-            currentRow.add(subview: subview, size: size, spacing: spacing)
-        }
-        if !currentRow.items.isEmpty { rows.append(currentRow) }
-        return rows
-    }
-    
-    struct Row {
-        var items: [(view: LayoutSubview, size: CGSize)] = []
-        var width: CGFloat = 0
-        var height: CGFloat = 0
-        
-        mutating func add(subview: LayoutSubview, size: CGSize, spacing: CGFloat) {
-            if !items.isEmpty { width += spacing }
-            items.append((subview, size))
-            width += size.width
-            height = max(height, size.height)
-        }
-    }
-}
-
-extension ContentView {
-    @ViewBuilder
-    var key: some View {
-        EmptyView()
-    }
-}
-
-extension ContentView {
-    @ViewBuilder
-    var value: some View {
-        EmptyView()
     }
 }
 
