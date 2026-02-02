@@ -313,6 +313,20 @@ fileprivate struct FlowLayout: Layout {
     }
 }
 
+extension ContentView {
+    @ViewBuilder
+    var key: some View {
+        EmptyView()
+    }
+}
+
+extension ContentView {
+    @ViewBuilder
+    var value: some View {
+        EmptyView()
+    }
+}
+
 #Preview {
     ContentView()
 }

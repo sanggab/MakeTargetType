@@ -27,6 +27,7 @@ struct APITargetDescriptor {
     var path: String
     var httpMethod: HTTPMethod
     var headers: [HeaderItem]
+    var taskKind: NetworkTaskKind
     
     init(
         displayName: String = "",
@@ -34,7 +35,8 @@ struct APITargetDescriptor {
         baseUrl: String = "",
         path: String = "",
         httpMethod: HTTPMethod = .get,
-        headers: [HeaderItem] = []
+        headers: [HeaderItem] = [],
+        taskKind: NetworkTaskKind = .requestPlain,
     ) {
         self.displayName = displayName
         self.caseName = caseName
@@ -42,30 +44,48 @@ struct APITargetDescriptor {
         self.path = path
         self.httpMethod = httpMethod
         self.headers = headers
+        self.taskKind = taskKind
     }
+}
+
+public enum NetworkTaskKind: String, CaseIterable, Identifiable {
+    case requestPlain
+    case requestData
+    case requestJSONEncodable
+    case requestCustomJSONEncodable
+    case requestParameters
+    case requestCompositeData
+    case requestCompositeParameters
+    case uploadFile
+    case uploadMultipart
+    case uploadCompositeMultipart
+    case downloadDestination
+    case downloadParameters
+    
+    public var id: String { rawValue }
 }
 
 public enum HTTPMethod: String, CaseIterable, Sendable {
     /// `GET` method.
-    case get = "get"
+    case get = "GET"
     /// `POST` method.
-    case post = "post"
+    case post = "POST"
     /// `CONNECT` method.
-    case connect = "connect"
+    case connect = "CONNECT"
     /// `DELETE` method.
-    case delete = "delete"
+    case delete = "DELETE"
     /// `HEAD` method.
-    case head = "head"
+    case head = "HEAD"
     /// `OPTIONS` method.
-    case options = "options"
+    case options = "OPTIONS"
     /// `PATCH` method.
-    case patch = "patch"
+    case patch = "PATCH"
     /// `PUT` method.
-    case put = "put"
+    case put = "PUT"
     /// `QUERY` method.
-    case query = "query"
+    case query = "QUERY"
     /// `TRACE` method.
-    case trace = "trace"
+    case trace = "TRACE"
 }
 
 /// Represents an HTTP task.
@@ -106,4 +126,56 @@ public enum NetworkTask {
 
     /// A file download task to a destination with extra parameters using the given encoding.
     case downloadParameters(parameters: [String: Any], encoding: ParameterEncoding, destination: Alamofire.DownloadRequest.Destination)
+}
+
+struct RequestDataModel {
+    var data: Data
+}
+
+struct RequestJSONEncodableModel {
+    var encodable: Encodable
+}
+
+struct RequestCustomJSONEncodableModel {
+    var encodable: Encodable
+    var encoder: JSONEncoder
+}
+
+struct RequestParametersModel {
+    var parameters: [String: Any]
+    var encoding: ParameterEncoding
+}
+
+struct RequestCompositeDataModel {
+    var bodyData: Data
+    var urlParameters: [String: Any]
+}
+
+struct RequestCompositeParametersModel {
+    var bodyParameters: [String: Any]
+    var bodyEncoding: ParameterEncoding
+    var urlParameters: [String: Any]
+}
+
+struct UploadFileModel {
+    var url: URL
+}
+
+struct UploadMultipartModel {
+    var multipartFormData: [MultipartFormData]
+}
+
+struct UploadCompositeMultipartModel {
+    var multipartFormData: [MultipartFormData]
+    var urlParameters: [String: Any]
+}
+
+struct DownloadDestinationModel {
+    var destination: DownloadRequest.Destination
+}
+
+struct DownloadParametersModel {
+    var parameters: [String: Any]
+    var encoding: ParameterEncoding
+    var destination: DownloadRequest.Destination
 }

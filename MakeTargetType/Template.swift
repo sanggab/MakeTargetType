@@ -7,11 +7,6 @@
 
 import Foundation
 
-func makeTargetTypeDefault(displayName: String) -> String {
-    // Fallback for compatibility if needed, but we prefer the one with full model
-    return ""
-}
-
 func makeTargetTypeDefault(APITargetDescriptor model: APITargetDescriptor) -> String {
     """
     //
@@ -52,7 +47,7 @@ func makeTargetTypeDefault(APITargetDescriptor model: APITargetDescriptor) -> St
         public var task: NetworkTask {
             switch self {
             case .\(model.caseName):
-                return .requestPlain
+                return .
             }
         }
         
