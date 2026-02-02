@@ -20,6 +20,13 @@ struct HeaderItem: Identifiable, Equatable, Hashable {
     }
 }
 
+public enum ParameterEncodingType: String, CaseIterable, Identifiable {
+    case url = "URLEncoding.default"
+    case json = "JSONEncoding.default"
+    
+    public var id: String { rawValue }
+}
+
 struct APITargetDescriptor {
     var displayName: String
     var caseName: String
@@ -28,6 +35,12 @@ struct APITargetDescriptor {
     var httpMethod: HTTPMethod
     var headers: [HeaderItem]
     var taskKind: NetworkTaskKind
+    var parameters: [HeaderItem]
+    
+    // Flattened associated values for UI binding
+    var requestData: String
+    var parameterEncoding: ParameterEncodingType
+    var uploadFileURL: String
     
     init(
         displayName: String = "",
@@ -37,6 +50,10 @@ struct APITargetDescriptor {
         httpMethod: HTTPMethod = .get,
         headers: [HeaderItem] = [],
         taskKind: NetworkTaskKind = .requestPlain,
+        parameters: [HeaderItem] = [],
+        requestData: String = "",
+        parameterEncoding: ParameterEncodingType = .url,
+        uploadFileURL: String = ""
     ) {
         self.displayName = displayName
         self.caseName = caseName
@@ -45,6 +62,10 @@ struct APITargetDescriptor {
         self.httpMethod = httpMethod
         self.headers = headers
         self.taskKind = taskKind
+        self.parameters = parameters
+        self.requestData = requestData
+        self.parameterEncoding = parameterEncoding
+        self.uploadFileURL = uploadFileURL
     }
 }
 
@@ -63,6 +84,37 @@ public enum NetworkTaskKind: String, CaseIterable, Identifiable {
     case downloadParameters
     
     public var id: String { rawValue }
+}
+
+extension NetworkTaskKind {
+    var placeHolder: [String] {
+        switch self {
+        case .requestPlain:
+            return []
+        case .requestData:
+            return ["Data"]
+        case .requestJSONEncodable:
+            return ["Encodable"]
+        case .requestCustomJSONEncodable:
+            return ["Encodable", "encoder: JSONEncoder"]
+        case .requestParameters:
+            return ["parameters: [String: Any]", "encoding: ParameterEncoding"]
+        case .requestCompositeData:
+            return ["bodyData: Data", "urlParameters: [String: Any]"]
+        case .requestCompositeParameters:
+            return ["bodyParameters: [String: Any]", "bodyEncoding: ParameterEncoding", "urlParameters: [String: Any]"]
+        case .uploadFile:
+            return ["URL"]
+        case .uploadMultipart:
+            return ["[MultipartFormData]"]
+        case .uploadCompositeMultipart:
+            return ["[MultipartFormData]", "urlParameters: [String: Any]"]
+        case .downloadDestination:
+            return ["Alamofire.DownloadRequest.Destination"]
+        case .downloadParameters:
+            return ["parameters: [String: Any]", "encoding: ParameterEncoding", "destination: Alamofire.DownloadRequest.Destination"]
+        }
+    }
 }
 
 public enum HTTPMethod: String, CaseIterable, Sendable {

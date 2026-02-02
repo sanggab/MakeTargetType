@@ -55,7 +55,7 @@ func makeTargetTypeDefault(APITargetDescriptor model: APITargetDescriptor) -> St
             switch self {
             case .\(model.caseName):
                 return [
-                    \(model.headers.map { "\"\($0.key)\": \"\($0.value)\"" }.joined(separator: ",\n\t\t\t\t"))
+                    \(model.headers.map { "\"\($0.key)\": \"\($0.value)\"" }.joined(separator: ",\n\t\t\t\t\t"))
                 ]
             }
         }
