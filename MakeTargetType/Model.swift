@@ -35,12 +35,7 @@ struct APITargetDescriptor {
     var httpMethod: HTTPMethod
     var headers: [HeaderItem]
     var taskKind: NetworkTaskKind
-    var parameters: [HeaderItem]
-    
-    // Flattened associated values for UI binding
-    var requestData: String
-    var parameterEncoding: ParameterEncodingType
-    var uploadFileURL: String
+    var parameters: [HeaderItem] = []
     
     init(
         displayName: String = "",
@@ -50,10 +45,7 @@ struct APITargetDescriptor {
         httpMethod: HTTPMethod = .get,
         headers: [HeaderItem] = [],
         taskKind: NetworkTaskKind = .requestPlain,
-        parameters: [HeaderItem] = [],
-        requestData: String = "",
-        parameterEncoding: ParameterEncodingType = .url,
-        uploadFileURL: String = ""
+        parameters: [HeaderItem] = []
     ) {
         self.displayName = displayName
         self.caseName = caseName
@@ -62,10 +54,6 @@ struct APITargetDescriptor {
         self.httpMethod = httpMethod
         self.headers = headers
         self.taskKind = taskKind
-        self.parameters = parameters
-        self.requestData = requestData
-        self.parameterEncoding = parameterEncoding
-        self.uploadFileURL = uploadFileURL
     }
 }
 

@@ -35,9 +35,6 @@ final class SettingViewModel {
     private(set) var headerKey = ""
     private(set) var headerValue = ""
     
-    private(set) var parameterKey = ""
-    private(set) var parameterValue = ""
-    
     private(set) var taskInputKey1 = ""
     private(set) var taskInputKey2 = ""
     private(set) var taskInputKey3 = ""
@@ -163,34 +160,12 @@ extension SettingViewModel {
         print("상갑 logEvent \(#function) taskKind \(self.apiTargetModel.taskKind)")
     }
     
-    func updateParameterEncoding(_ encoding: String) {
-        guard let type = ParameterEncodingType(rawValue: encoding) else { return }
-        self.apiTargetModel.parameterEncoding = type
-        print("상갑 logEvent \(#function) parameterEncoding \(self.apiTargetModel.parameterEncoding)")
-    }
-    
-    func updateRequestData(_ data: String) {
-        self.apiTargetModel.requestData = data
-    }
-    
-    func updateUploadFile(_ url: String) {
-        self.apiTargetModel.uploadFileURL = url
-    }
-    
     func updateHeaderKey(key: String) {
         self.headerKey = key
     }
     
     func updateHeaderValue(value: String) {
         self.headerValue = value
-    }
-    
-    func updateParameterKey(key: String) {
-        self.parameterKey = key
-    }
-    
-    func updateParameterValue(value: String) {
-        self.parameterValue = value
     }
     
     func updateAPITargetHeader() {
@@ -215,22 +190,6 @@ extension SettingViewModel {
         if let index = self.apiTargetModel.headers.firstIndex(where: { $0.key == key }) {
             self.apiTargetModel.headers.remove(at: index)
             print("상갑 logEvent \(#function) removed headers key: \(key)")
-        }
-    }
-    
-    func addParameter() {
-        guard !self.parameterKey.isEmpty, !self.parameterValue.isEmpty else { return }
-        let newItem = HeaderItem(key: self.parameterKey, value: self.parameterValue)
-        self.apiTargetModel.parameters.append(newItem)
-        print("상갑 logEvent \(#function) added parameter \(self.parameterKey): \(self.parameterValue)")
-        self.parameterKey = ""
-        self.parameterValue = ""
-    }
-    
-    func removeParameter(id: UUID) {
-        if let index = self.apiTargetModel.parameters.firstIndex(where: { $0.id == id }) {
-            self.apiTargetModel.parameters.remove(at: index)
-            print("상갑 logEvent \(#function) removed parameter id: \(id)")
         }
     }
     

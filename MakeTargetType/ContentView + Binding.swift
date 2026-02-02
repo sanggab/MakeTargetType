@@ -63,34 +63,6 @@ extension ContentView {
             set: { viewModel.updateHeaderValue(value: $0) }
         )
     }
-    
-    var bindingParameterKey: Binding<String> {
-        Binding(
-            get: { viewModel.parameterKey },
-            set: { viewModel.updateParameterKey(key: $0) }
-        )
-    }
-    
-    var bindingParameterValue: Binding<String> {
-        Binding(
-            get: { viewModel.parameterValue },
-            set: { viewModel.updateParameterValue(value: $0) }
-        )
-    }
-    
-    var bindingRequestData: Binding<String> {
-        Binding(
-            get: { viewModel.apiTargetModel.requestData },
-            set: { viewModel.updateRequestData($0) }
-        )
-    }
-    
-    var bindingUploadFile: Binding<String> {
-        Binding(
-            get: { viewModel.apiTargetModel.uploadFileURL },
-            set: { viewModel.updateUploadFile($0) }
-        )
-    }
 }
 
 extension ContentView {
