@@ -51,7 +51,11 @@ extension ContentView {
             Text("case")
                 .frame(width: 100)
             
-            TextField("enum case 이름", text: bindingCaseName)
+            VStack(spacing: 10) {
+                TextField("enum case 이름", text: bindingCaseName)
+                
+                TextField("Associated Value, 없을 경우 빈값", text: bindingCaseAssociatedValue)
+            }
         }
         
         Divider()

@@ -30,6 +30,7 @@ public enum ParameterEncodingType: String, CaseIterable, Identifiable {
 struct APITargetDescriptor {
     var displayName: String
     var caseName: String
+    var caseAssociatedValue: String
     var baseUrl: String
     var path: String
     var httpMethod: HTTPMethod
@@ -40,6 +41,7 @@ struct APITargetDescriptor {
     init(
         displayName: String = "",
         caseName: String = "",
+        caseAssociatedValue: String = "",
         baseUrl: String = "",
         path: String = "",
         httpMethod: HTTPMethod = .get,
@@ -49,6 +51,7 @@ struct APITargetDescriptor {
     ) {
         self.displayName = displayName
         self.caseName = caseName
+        self.caseAssociatedValue = caseAssociatedValue
         self.baseUrl = baseUrl
         self.path = path
         self.httpMethod = httpMethod
@@ -59,17 +62,17 @@ struct APITargetDescriptor {
 
 public enum NetworkTaskKind: String, CaseIterable, Identifiable {
     case requestPlain
-    case requestData
-    case requestJSONEncodable
-    case requestCustomJSONEncodable
+//    case requestData
     case requestParameters
-    case requestCompositeData
-    case requestCompositeParameters
-    case uploadFile
-    case uploadMultipart
-    case uploadCompositeMultipart
-    case downloadDestination
-    case downloadParameters
+//    case requestJSONEncodable
+//    case requestCustomJSONEncodable
+//    case requestCompositeData
+//    case requestCompositeParameters
+//    case uploadFile
+//    case uploadMultipart
+//    case uploadCompositeMultipart
+//    case downloadDestination
+//    case downloadParameters
     
     public var id: String { rawValue }
 }
@@ -79,28 +82,28 @@ extension NetworkTaskKind {
         switch self {
         case .requestPlain:
             return []
-        case .requestData:
-            return ["Data"]
-        case .requestJSONEncodable:
-            return ["Encodable"]
-        case .requestCustomJSONEncodable:
-            return ["Encodable", "encoder: JSONEncoder"]
+//        case .requestData:
+//            return ["Data"]
+//        case .requestJSONEncodable:
+//            return ["Encodable"]
+//        case .requestCustomJSONEncodable:
+//            return ["Encodable", "encoder: JSONEncoder"]
         case .requestParameters:
             return ["parameters: [String: Any]", "encoding: ParameterEncoding"]
-        case .requestCompositeData:
-            return ["bodyData: Data", "urlParameters: [String: Any]"]
-        case .requestCompositeParameters:
-            return ["bodyParameters: [String: Any]", "bodyEncoding: ParameterEncoding", "urlParameters: [String: Any]"]
-        case .uploadFile:
-            return ["URL"]
-        case .uploadMultipart:
-            return ["[MultipartFormData]"]
-        case .uploadCompositeMultipart:
-            return ["[MultipartFormData]", "urlParameters: [String: Any]"]
-        case .downloadDestination:
-            return ["Alamofire.DownloadRequest.Destination"]
-        case .downloadParameters:
-            return ["parameters: [String: Any]", "encoding: ParameterEncoding", "destination: Alamofire.DownloadRequest.Destination"]
+//        case .requestCompositeData:
+//            return ["bodyData: Data", "urlParameters: [String: Any]"]
+//        case .requestCompositeParameters:
+//            return ["bodyParameters: [String: Any]", "bodyEncoding: ParameterEncoding", "urlParameters: [String: Any]"]
+//        case .uploadFile:
+//            return ["URL"]
+//        case .uploadMultipart:
+//            return ["[MultipartFormData]"]
+//        case .uploadCompositeMultipart:
+//            return ["[MultipartFormData]", "urlParameters: [String: Any]"]
+//        case .downloadDestination:
+//            return ["Alamofire.DownloadRequest.Destination"]
+//        case .downloadParameters:
+//            return ["parameters: [String: Any]", "encoding: ParameterEncoding", "destination: Alamofire.DownloadRequest.Destination"]
         }
     }
 }

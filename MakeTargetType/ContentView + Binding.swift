@@ -29,6 +29,13 @@ extension ContentView {
         )
     }
     
+    var bindingCaseAssociatedValue: Binding<String> {
+        Binding(
+            get: { viewModel.apiTargetModel.caseAssociatedValue },
+            set: { viewModel.updateCaseAssociatedValue($0) }
+        )
+    }
+    
     var bindingBaseUrl: Binding<String> {
         Binding(
             get: { viewModel.apiTargetModel.baseUrl },

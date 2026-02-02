@@ -134,6 +134,11 @@ extension SettingViewModel {
         print("상갑 logEvent \(#function) caseName \(self.apiTargetModel.caseName)")
     }
     
+    func updateCaseAssociatedValue(_ associatedValue: String) {
+        self.apiTargetModel.caseAssociatedValue = associatedValue
+        print("상갑 logEvent \(#function) associatedValue \(self.apiTargetModel.caseAssociatedValue)")
+    }
+    
     func updateBaseUrl(_ url: String) {
         guard self.apiTargetModel.baseUrl != url else { return }
         self.apiTargetModel.baseUrl = url

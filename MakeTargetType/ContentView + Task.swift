@@ -27,16 +27,16 @@ extension ContentView {
             Spacer()
         }
         
-        switch viewModel.apiTargetModel.taskKind {
-        case .requestPlain:
-            requestPlainView
-            
-        case .requestData:
-            requestDataView
-            
-        case .requestParameters:
-            requestParametersView
-            
+//        switch viewModel.apiTargetModel.taskKind {
+//        case .requestPlain:
+//            requestPlainView
+//            
+//        case .requestData:
+//            requestDataView
+//            
+//        case .requestParameters:
+//            requestParametersView
+//            
 //        case .requestJSONEncodable:
 //            requestJSONEncodableView
 //
@@ -64,9 +64,9 @@ extension ContentView {
 //
 //        case .downloadParameters:
 //            downloadParametersView
-        default:
-            EmptyView()
-        }
+//        default:
+//            EmptyView()
+//        }
         
         Divider()
     }
