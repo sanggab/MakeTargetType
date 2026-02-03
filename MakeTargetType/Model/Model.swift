@@ -20,11 +20,11 @@ struct HeaderItem: Identifiable, Equatable, Hashable {
     }
 }
 
-public enum ParameterEncodingType: String, CaseIterable, Identifiable {
+enum ParameterEncodingType: String, CaseIterable, Identifiable {
     case url = "URLEncoding.default"
     case json = "JSONEncoding.default"
     
-    public var id: String { rawValue }
+    var id: String { rawValue }
 }
 
 struct APITargetDescriptor {
@@ -36,7 +36,6 @@ struct APITargetDescriptor {
     var httpMethod: HTTPMethod
     var headers: [HeaderItem]
     var taskKind: NetworkTaskKind
-    var parameters: [HeaderItem] = []
     
     init(
         displayName: String = "",
@@ -47,7 +46,6 @@ struct APITargetDescriptor {
         httpMethod: HTTPMethod = .get,
         headers: [HeaderItem] = [],
         taskKind: NetworkTaskKind = .requestPlain,
-        parameters: [HeaderItem] = []
     ) {
         self.displayName = displayName
         self.caseName = caseName
@@ -60,12 +58,12 @@ struct APITargetDescriptor {
     }
 }
 
-public enum NetworkTaskKind: String, CaseIterable, Identifiable {
+enum NetworkTaskKind: String, CaseIterable, Identifiable {
     case requestPlain
 //    case requestData
-    case requestParameters
 //    case requestJSONEncodable
 //    case requestCustomJSONEncodable
+    case requestParameters
 //    case requestCompositeData
 //    case requestCompositeParameters
 //    case uploadFile
@@ -74,7 +72,7 @@ public enum NetworkTaskKind: String, CaseIterable, Identifiable {
 //    case downloadDestination
 //    case downloadParameters
     
-    public var id: String { rawValue }
+    var id: String { rawValue }
 }
 
 extension NetworkTaskKind {
@@ -108,7 +106,7 @@ extension NetworkTaskKind {
     }
 }
 
-public enum HTTPMethod: String, CaseIterable, Sendable {
+enum HTTPMethod: String, CaseIterable, Sendable {
     /// `GET` method.
     case get = "GET"
     /// `POST` method.
@@ -132,7 +130,7 @@ public enum HTTPMethod: String, CaseIterable, Sendable {
 }
 
 /// Represents an HTTP task.
-public enum NetworkTask {
+enum NetworkTask {
 
     /// A request with no additional data.
     case requestPlain

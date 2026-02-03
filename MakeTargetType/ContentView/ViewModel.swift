@@ -35,10 +35,6 @@ final class SettingViewModel {
     private(set) var headerKey = ""
     private(set) var headerValue = ""
     
-    private(set) var taskInputKey1 = ""
-    private(set) var taskInputKey2 = ""
-    private(set) var taskInputKey3 = ""
-    
     init() {
         let defaultHeaderItem = [
             HeaderItem(
@@ -160,7 +156,6 @@ extension SettingViewModel {
     
     func updateTaskKind(_ kind: NetworkTaskKind) {
         guard self.apiTargetModel.taskKind != kind else { return }
-        self.clearTaskInputKeys()
         self.apiTargetModel.taskKind = kind
         print("상갑 logEvent \(#function) taskKind \(self.apiTargetModel.taskKind)")
     }
@@ -198,28 +193,6 @@ extension SettingViewModel {
         }
     }
     
-    func updateTaskInputKey1(key: String) {
-        print("상갑 logEvent \(#function) key \(key)")
-        self.taskInputKey1 = key
-    }
-    
-    func updateTaskInputKey2(key: String) {
-        print("상갑 logEvent \(#function) key \(key)")
-        self.taskInputKey2 = key
-    }
-    
-    func updateTaskInputKey3(key: String) {
-        print("상갑 logEvent \(#function) key \(key)")
-        self.taskInputKey3 = key
-    }
-    
-    func clearTaskInputKeys() {
-        print("상갑 logEvent \(#function)")
-        self.taskInputKey1 = ""
-        self.taskInputKey2 = ""
-        self.taskInputKey3 = ""
-    }
-    
     func createTargetTypeFile() {
         guard let baseProjectURL = self.projectURL else {
             self.showAlert("에러", "프로젝트 경로가 설정되지 않았습니다.")
@@ -252,7 +225,19 @@ extension SettingViewModel {
         }
         
         if fileManager.fileExists(atPath: fileURL.path) {
-            self.showAlert("실패", "\(fileName) 파일이 이미 존재합니다.")
+            // Append Case Logic
+            do {
+                let existingContent = try String(contentsOf: fileURL, encoding: .utf8)
+                let newContent = appendTargetTypeCase(fileContent: existingContent, model: apiTargetModel)
+                try newContent.write(to: fileURL, atomically: true, encoding: .utf8)
+                
+                print("상갑 logEvent \(#function) success appended \(fileURL.path)")
+                self.showAlert("성공", "\(fileName) 파일에 새로운 Case가 추가되었습니다.")
+                self.loadTargetTypeList(from: baseProjectURL)
+            } catch {
+                print("상갑 logEvent \(#function) append error \(error)")
+                self.showAlert("에러", "파일 수정 중 오류가 발생했습니다.\n\(error.localizedDescription)")
+            }
             return
         }
         

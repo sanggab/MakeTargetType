@@ -71,39 +71,3 @@ extension ContentView {
         )
     }
 }
-
-extension ContentView {
-    func getBindingTaskInput(_ idx: Int) -> Binding<String> {
-        switch idx {
-        case 0:
-            return bindingTaskInput1
-        case 1:
-            return bindingTaskInput2
-        case 2:
-            return bindingTaskInput3
-        default:
-            return .constant("")
-        }
-    }
-    
-    var bindingTaskInput1: Binding<String> {
-        Binding(
-            get: { viewModel.taskInputKey1 },
-            set: { viewModel.updateTaskInputKey1(key: $0)}
-        )
-    }
-    
-    var bindingTaskInput2: Binding<String> {
-        Binding(
-            get: { viewModel.taskInputKey2 },
-            set: { viewModel.updateTaskInputKey2(key: $0)}
-        )
-    }
-    
-    var bindingTaskInput3: Binding<String> {
-        Binding(
-            get: { viewModel.taskInputKey3 },
-            set: { viewModel.updateTaskInputKey3(key: $0)}
-        )
-    }
-}

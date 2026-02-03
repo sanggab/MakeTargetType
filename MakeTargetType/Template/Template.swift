@@ -7,8 +7,15 @@
 
 import Foundation
 
+func makeTargetTypeDefault(displayName: String) -> String {
+    return ""
+}
+
 func makeTargetTypeDefault(APITargetDescriptor model: APITargetDescriptor) -> String {
-    """
+    let taskCode = getTaskName(APITargetDescriptor: model)
+    let caseDefinition = getCaseDefinition(model: model)
+    
+    return """
     //
     //  \(model.displayName)TargetType.swift
     //  NetworkCore
@@ -17,11 +24,10 @@ func makeTargetTypeDefault(APITargetDescriptor model: APITargetDescriptor) -> St
     //  Copyright © \(thisYear()) Yeoboya. All rights reserved.
     //
     import Foundation
-    
     import Alamofire
     
     public enum \(model.displayName)TargetType {
-        \(getCaseName(APITargetDescriptor: model))
+        \(caseDefinition)
     }
     
     extension \(model.displayName)TargetType: TargetType {
@@ -48,7 +54,7 @@ func makeTargetTypeDefault(APITargetDescriptor model: APITargetDescriptor) -> St
         
         public var task: NetworkTask {
             switch self {
-                \(getTaskName(APITargetDescriptor: model))
+            \(getTaskName(APITargetDescriptor: model))
             }
         }
         
@@ -56,7 +62,7 @@ func makeTargetTypeDefault(APITargetDescriptor model: APITargetDescriptor) -> St
             switch self {
             case .\(model.caseName):
                 return [
-                    \(model.headers.map { "\"\($0.key)\": \"\($0.value)\"" }.joined(separator: ",\n\t\t\t\t"))
+    \(model.headers.map { "                \"\($0.key)\": \"\($0.value)\"" }.joined(separator: ",\n"))
                 ]
             }
         }
@@ -75,6 +81,82 @@ func thisYear() -> String {
     formatter.dateFormat = "yyyy"
     return formatter.string(from: Date())
 }
+
+func appendTargetTypeCase(fileContent: String, model: APITargetDescriptor) -> String {
+    var content = fileContent
+    let caseName = model.caseName
+    
+    // 1. Add Case Definition to Enum
+    let caseDef = getCaseDefinition(model: model)
+    // Find the last '}' of the enum. Assume enum definition ends before the extension.
+    if let enumEndRange = content.range(of: "}", options: .backwards, range: content.startIndex..<(content.range(of: "extension")?.lowerBound ?? content.endIndex)) {
+        content.insert(contentsOf: "\n    \(caseDef)", at: enumEndRange.lowerBound)
+    }
+    
+    // Helper to insert case into switch
+    func insertIntoSwitch(property: String, code: String) {
+        // Find 'var property: Type {'
+        // Then find 'switch self {' inside it.
+        // Then find the closing '}' of the switch.
+        // We look for the pattern: var property: .*? \{.*?switch self \{
+        
+        // Simple heuristic: Find 'var property:' -> Find 'switch self {' -> Find next '}' (which closes switch)
+        // Be careful with nested braces. But properties here are simple.
+        
+        guard let propRange = content.range(of: "var \(property):") else { return }
+        guard let switchRange = content.range(of: "switch self {", range: propRange.upperBound..<content.endIndex) else { return }
+        
+        // Find closing brace of switch. It should be the first '}' after switch start,
+        // assuming no nested blocks inside case bodies (NetworkTask might have, but headers usually don't).
+        // Actually NetworkTask cases might have parens but not braces usually in this template.
+        // Safer: Find '}' at same indentation level or simply the next '}' if we assume standard formatting.
+        // Let's assume standard formatting where '}' closing switch is on a new line with 8 or 12 spaces.
+        // Or just find the next '}' that isn't part of a string literal.
+        
+        // Let's use a simple scanner for balancing braces if needed, but for now searching for "        }" (8 spaces) is likely robust for this template.
+        // Or just search for the next "}" and hope.
+        // Let's try to find the next "}" that follows the last case or default.
+        
+        if let switchEnd = content.range(of: "}", range: switchRange.upperBound..<content.endIndex) {
+             content.insert(contentsOf: "\n            \(code)", at: switchEnd.lowerBound)
+        }
+    }
+    
+    // 2. baseURL
+    insertIntoSwitch(property: "baseURL", code: "case .\(caseName):\n                return URL(string: \"\(model.baseUrl)\")!")
+    
+    // 3. path
+    insertIntoSwitch(property: "path", code: "case .\(caseName):\n                return \"\(model.path)\"")
+    
+    // 4. method
+    insertIntoSwitch(property: "method", code: "case .\(caseName):\n                return .\(model.httpMethod.rawValue.lowercased())")
+    
+    // 5. task
+    let taskCode = getTaskName(APITargetDescriptor: model)
+    insertIntoSwitch(property: "task", code: "case .\(caseName):\n                return \(taskCode)")
+    
+    // 6. headers
+    let headersCode = """
+case .\(caseName):
+                return [
+\(model.headers.map { "                \"\($0.key)\": \"\($0.value)\"" }.joined(separator: ",\n"))
+                ]
+"""
+    insertIntoSwitch(property: "headers", code: headersCode)
+    
+    return content
+}
+
+// Helpers to avoid code duplication
+
+func getCaseDefinition(model: APITargetDescriptor) -> String {
+    if model.caseAssociatedValue.isEmpty {
+        return "case \(model.caseName)"
+    } else {
+        return "case \(model.caseName)(\(model.caseAssociatedValue))"
+    }
+}
+
 
 func getCaseName(APITargetDescriptor model: APITargetDescriptor) -> String {
     let caseName: String
@@ -119,7 +201,7 @@ func getTaskReturn(APITargetDescriptor model: APITargetDescriptor) -> String {
     case .requestPlain:
         taskReturn = ".\(model.taskKind.id)"
     case .requestParameters:
-        taskReturn = "\t\t\t\treturn .\(model.taskKind.id)(parameters: params, encoding: JSONEncoding.default)"
+        taskReturn = "return .\(model.taskKind.id)(parameters: params, encoding: JSONEncoding.default)"
     }
     
     return taskReturn
