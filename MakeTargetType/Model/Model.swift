@@ -8,36 +8,36 @@
 import Foundation
 import Alamofire
 
-struct HeaderItem: Identifiable, Equatable, Hashable {
-    let id: UUID
-    var key: String
-    var value: String
+public struct HeaderItem: Identifiable, Equatable, Hashable {
+    public let id: UUID
+    public var key: String
+    public var value: String
     
-    init(id: UUID = UUID(), key: String, value: String) {
+    public init(id: UUID = UUID(), key: String, value: String) {
         self.id = id
         self.key = key
         self.value = value
     }
 }
 
-enum ParameterEncodingType: String, CaseIterable, Identifiable {
+public enum ParameterEncodingType: String, CaseIterable, Identifiable {
     case url = "URLEncoding.default"
     case json = "JSONEncoding.default"
     
-    var id: String { rawValue }
+    public var id: String { rawValue }
 }
 
-struct APITargetDescriptor {
-    var displayName: String
-    var caseName: String
-    var caseAssociatedValue: String
-    var baseUrl: String
-    var path: String
-    var httpMethod: HTTPMethod
-    var headers: [HeaderItem]
-    var taskKind: NetworkTaskKind
+public struct APITargetDescriptor {
+    public var displayName: String
+    public var caseName: String
+    public var caseAssociatedValue: String
+    public var baseUrl: String
+    public var path: String
+    public var httpMethod: HTTPMethod
+    public var headers: [HeaderItem]
+    public var taskKind: NetworkTaskKind
     
-    init(
+    public init(
         displayName: String = "",
         caseName: String = "",
         caseAssociatedValue: String = "",
@@ -58,7 +58,7 @@ struct APITargetDescriptor {
     }
 }
 
-enum NetworkTaskKind: String, CaseIterable, Identifiable {
+public enum NetworkTaskKind: String, CaseIterable, Identifiable {
     case requestPlain
 //    case requestData
 //    case requestJSONEncodable
@@ -72,10 +72,10 @@ enum NetworkTaskKind: String, CaseIterable, Identifiable {
 //    case downloadDestination
 //    case downloadParameters
     
-    var id: String { rawValue }
+    public var id: String { rawValue }
 }
 
-extension NetworkTaskKind {
+public extension NetworkTaskKind {
     var placeHolder: [String] {
         switch self {
         case .requestPlain:
@@ -106,7 +106,7 @@ extension NetworkTaskKind {
     }
 }
 
-enum HTTPMethod: String, CaseIterable, Sendable {
+public enum HTTPMethod: String, CaseIterable, Sendable {
     /// `GET` method.
     case get = "GET"
     /// `POST` method.
@@ -130,7 +130,7 @@ enum HTTPMethod: String, CaseIterable, Sendable {
 }
 
 /// Represents an HTTP task.
-enum NetworkTask {
+public enum NetworkTask {
 
     /// A request with no additional data.
     case requestPlain
@@ -169,54 +169,62 @@ enum NetworkTask {
     case downloadParameters(parameters: [String: Any], encoding: ParameterEncoding, destination: Alamofire.DownloadRequest.Destination)
 }
 
-struct RequestDataModel {
+public struct RequestDataModel {
     var data: Data
 }
 
-struct RequestJSONEncodableModel {
+public struct RequestJSONEncodableModel {
     var encodable: Encodable
 }
 
-struct RequestCustomJSONEncodableModel {
+public struct RequestCustomJSONEncodableModel {
     var encodable: Encodable
     var encoder: JSONEncoder
 }
 
-struct RequestParametersModel {
+public struct RequestParametersModel {
     var parameters: [String: Any]
     var encoding: ParameterEncoding
 }
 
-struct RequestCompositeDataModel {
+public struct RequestCompositeDataModel {
     var bodyData: Data
     var urlParameters: [String: Any]
 }
 
-struct RequestCompositeParametersModel {
+public struct RequestCompositeParametersModel {
     var bodyParameters: [String: Any]
     var bodyEncoding: ParameterEncoding
     var urlParameters: [String: Any]
 }
 
-struct UploadFileModel {
+public struct UploadFileModel {
     var url: URL
 }
 
-struct UploadMultipartModel {
+public struct UploadMultipartModel {
     var multipartFormData: [MultipartFormData]
 }
 
-struct UploadCompositeMultipartModel {
+public struct UploadCompositeMultipartModel {
     var multipartFormData: [MultipartFormData]
     var urlParameters: [String: Any]
 }
 
-struct DownloadDestinationModel {
+public struct DownloadDestinationModel {
     var destination: DownloadRequest.Destination
 }
 
-struct DownloadParametersModel {
+public struct DownloadParametersModel {
     var parameters: [String: Any]
     var encoding: ParameterEncoding
     var destination: DownloadRequest.Destination
+}
+
+protocol TargetType {
+    var baseURL: URL { get }
+    var path: String { get }
+    var method: HTTPMethod { get }
+    var task: NetworkTask { get }
+    var headers: [String: String]? { get }
 }

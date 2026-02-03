@@ -12,8 +12,6 @@ func makeTargetTypeDefault(displayName: String) -> String {
 }
 
 func makeTargetTypeDefault(APITargetDescriptor model: APITargetDescriptor) -> String {
-    let taskCode = getTaskName(APITargetDescriptor: model)
-    let caseDefinition = getCaseDefinition(model: model)
     
     return """
     //
@@ -27,7 +25,7 @@ func makeTargetTypeDefault(APITargetDescriptor model: APITargetDescriptor) -> St
     import Alamofire
     
     public enum \(model.displayName)TargetType {
-        \(caseDefinition)
+        \(getCaseDefinition(model: model))
     }
     
     extension \(model.displayName)TargetType: TargetType {
@@ -84,66 +82,16 @@ func thisYear() -> String {
 
 func appendTargetTypeCase(fileContent: String, model: APITargetDescriptor) -> String {
     var content = fileContent
-    let caseName = model.caseName
     
     // 1. Add Case Definition to Enum
     let caseDef = getCaseDefinition(model: model)
     // Find the last '}' of the enum. Assume enum definition ends before the extension.
-    if let enumEndRange = content.range(of: "}", options: .backwards, range: content.startIndex..<(content.range(of: "extension")?.lowerBound ?? content.endIndex)) {
-        content.insert(contentsOf: "\n    \(caseDef)", at: enumEndRange.lowerBound)
+    if let enumEndRange = content.range(of: "\n}", options: .backwards, range: content.startIndex..<(content.range(of: "extension")?.lowerBound ?? content.endIndex)) {
+        content.insert(contentsOf: "\n\t\(caseDef)", at: enumEndRange.lowerBound)
     }
     
-    // Helper to insert case into switch
-    func insertIntoSwitch(property: String, code: String) {
-        // Find 'var property: Type {'
-        // Then find 'switch self {' inside it.
-        // Then find the closing '}' of the switch.
-        // We look for the pattern: var property: .*? \{.*?switch self \{
-        
-        // Simple heuristic: Find 'var property:' -> Find 'switch self {' -> Find next '}' (which closes switch)
-        // Be careful with nested braces. But properties here are simple.
-        
-        guard let propRange = content.range(of: "var \(property):") else { return }
-        guard let switchRange = content.range(of: "switch self {", range: propRange.upperBound..<content.endIndex) else { return }
-        
-        // Find closing brace of switch. It should be the first '}' after switch start,
-        // assuming no nested blocks inside case bodies (NetworkTask might have, but headers usually don't).
-        // Actually NetworkTask cases might have parens but not braces usually in this template.
-        // Safer: Find '}' at same indentation level or simply the next '}' if we assume standard formatting.
-        // Let's assume standard formatting where '}' closing switch is on a new line with 8 or 12 spaces.
-        // Or just find the next '}' that isn't part of a string literal.
-        
-        // Let's use a simple scanner for balancing braces if needed, but for now searching for "        }" (8 spaces) is likely robust for this template.
-        // Or just search for the next "}" and hope.
-        // Let's try to find the next "}" that follows the last case or default.
-        
-        if let switchEnd = content.range(of: "}", range: switchRange.upperBound..<content.endIndex) {
-             content.insert(contentsOf: "\n            \(code)", at: switchEnd.lowerBound)
-        }
-    }
-    
-    // 2. baseURL
-    insertIntoSwitch(property: "baseURL", code: "case .\(caseName):\n                return URL(string: \"\(model.baseUrl)\")!")
-    
-    // 3. path
-    insertIntoSwitch(property: "path", code: "case .\(caseName):\n                return \"\(model.path)\"")
-    
-    // 4. method
-    insertIntoSwitch(property: "method", code: "case .\(caseName):\n                return .\(model.httpMethod.rawValue.lowercased())")
-    
-    // 5. task
-    let taskCode = getTaskName(APITargetDescriptor: model)
-    insertIntoSwitch(property: "task", code: "case .\(caseName):\n                return \(taskCode)")
-    
-    // 6. headers
-    let headersCode = """
-case .\(caseName):
-                return [
-\(model.headers.map { "                \"\($0.key)\": \"\($0.value)\"" }.joined(separator: ",\n"))
-                ]
-"""
-    insertIntoSwitch(property: "headers", code: headersCode)
-    
+    getBaseURL(APITargetDescriptor: model, fileContent: &content)
+
     return content
 }
 
@@ -178,8 +126,8 @@ func getTaskName(APITargetDescriptor model: APITargetDescriptor) -> String {
     switch model.taskKind {
     case .requestPlain:
         taskName = """
-            case .\(model.caseName)
-                return .\(model.taskKind.id)
+            case .\(model.caseName):
+                \(getTaskReturn(APITargetDescriptor: model))
             """
     case .requestParameters:
         let caseName = model.caseAssociatedValue.isEmpty ? "case .\(model.caseName):"
@@ -187,7 +135,7 @@ func getTaskName(APITargetDescriptor model: APITargetDescriptor) -> String {
         
         taskName = """
             \(caseName)
-            \(getTaskReturn(APITargetDescriptor: model))
+                \(getTaskReturn(APITargetDescriptor: model))
             """
     }
     
@@ -199,10 +147,27 @@ func getTaskReturn(APITargetDescriptor model: APITargetDescriptor) -> String {
     
     switch model.taskKind {
     case .requestPlain:
-        taskReturn = ".\(model.taskKind.id)"
+        taskReturn = "\t\treturn .\(model.taskKind.id)"
     case .requestParameters:
         taskReturn = "return .\(model.taskKind.id)(parameters: params, encoding: JSONEncoding.default)"
     }
     
     return taskReturn
+}
+
+func getBaseURL(APITargetDescriptor model: APITargetDescriptor, fileContent content: inout String) {
+    guard let propRange = content.range(of: "var baseURL:") else { return }
+    guard let switchRange = content.range(of: "switch self {", range: propRange.upperBound..<content.endIndex) else { return }
+    
+    let append = """
+        case .\(model.caseName):
+            \t\treturn URL(string: "\(model.baseUrl)")!\n\t\t
+        """
+    
+    print("상갑 logEvent \(#function) propRange \(propRange)")
+    print("상갑 logEvent \(#function) switchRange \(switchRange)")
+    
+    if let switchEnd = content.range(of: "}", range: switchRange.upperBound..<content.endIndex) {
+        content.insert(contentsOf: append, at: switchEnd.lowerBound)
+    }
 }
