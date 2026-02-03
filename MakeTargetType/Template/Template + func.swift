@@ -123,3 +123,101 @@ extension GenerateTemplate {
     }
 }
 
+extension GenerateTemplate {
+    func appendTargetTypeCase(fileContent content: inout String, model: APITargetDescriptor) -> String {
+        
+        insertCaseDefinition(fileContent: &content, APITargetDescriptor: model)
+        
+        insertBaseURL(fileContent: &content, APITargetDescriptor: model)
+        
+        insertPath(fileContent: &content, APITargetDescriptor: model)
+        
+        insertMethod(fileContent: &content, APITargetDescriptor: model)
+        
+        insertTask(fileContent: &content, APITargetDescriptor: model)
+        
+        insertHeaders(fileContent: &content, APITargetDescriptor: model)
+        
+        return content
+    }
+}
+
+extension GenerateTemplate {
+    func insertCaseDefinition(fileContent content: inout String, APITargetDescriptor model: APITargetDescriptor) {
+        let caseDef = generateCaseDefinition(APITargetDescriptor: model)
+        // Find the last '}' of the enum. Assume enum definition ends before the extension.
+        if let enumEndRange = content.range(of: "\n}", options: .backwards, range: content.startIndex..<(content.range(of: "extension")?.lowerBound ?? content.endIndex)) {
+            content.insert(contentsOf: "\n\t\(caseDef)", at: enumEndRange.lowerBound)
+        }
+    }
+}
+
+extension GenerateTemplate {
+    func insertBaseURL(fileContent content: inout String, APITargetDescriptor model: APITargetDescriptor) {
+        guard let propRange = content.range(of: "var baseURL:") else { return }
+        guard let switchRange = content.range(of: "switch self {", range: propRange.upperBound..<content.endIndex) else { return }
+        
+        var append = generateBaseURL(APITargetDescriptor: model)
+        append.insert(contentsOf: "\n\t\t", at: append.endIndex)
+        
+        if let switchEnd = content.range(of: "}", range: switchRange.upperBound..<content.endIndex) {
+            content.insert(contentsOf: append, at: switchEnd.lowerBound)
+        }
+    }
+}
+
+extension GenerateTemplate {
+    func insertPath(fileContent content: inout String, APITargetDescriptor model: APITargetDescriptor) {
+        guard let propRange = content.range(of: "var path:") else { return }
+        guard let switchRange = content.range(of: "switch self {", range: propRange.upperBound..<content.endIndex) else { return }
+        
+        var append = generatePath(APITargetDescriptor: model)
+        append.insert(contentsOf: "\n\t\t", at: append.endIndex)
+        
+        if let switchEnd = content.range(of: "}", range: switchRange.upperBound..<content.endIndex) {
+            content.insert(contentsOf: append, at: switchEnd.lowerBound)
+        }
+    }
+}
+
+extension GenerateTemplate {
+    func insertMethod(fileContent content: inout String, APITargetDescriptor model: APITargetDescriptor) {
+        guard let propRange = content.range(of: "var method:") else { return }
+        guard let switchRange = content.range(of: "switch self {", range: propRange.upperBound..<content.endIndex) else { return }
+        
+        var append = generateMethod(APITargetDescriptor: model)
+        append.insert(contentsOf: "\n\t\t", at: append.endIndex)
+        
+        if let switchEnd = content.range(of: "}", range: switchRange.upperBound..<content.endIndex) {
+            content.insert(contentsOf: append, at: switchEnd.lowerBound)
+        }
+    }
+}
+
+extension GenerateTemplate {
+    func insertTask(fileContent content: inout String, APITargetDescriptor model: APITargetDescriptor) {
+        guard let propRange = content.range(of: "var task:") else { return }
+        guard let switchRange = content.range(of: "switch self {", range: propRange.upperBound..<content.endIndex) else { return }
+        
+        var append = generateNetworkTask(APITargetDescriptor: model)
+        append.insert(contentsOf: "\n\t\t", at: append.endIndex)
+        
+        if let switchEnd = content.range(of: "}", range: switchRange.upperBound..<content.endIndex) {
+            content.insert(contentsOf: append, at: switchEnd.lowerBound)
+        }
+    }
+}
+
+extension GenerateTemplate {
+    func insertHeaders(fileContent content: inout String, APITargetDescriptor model: APITargetDescriptor) {
+        guard let propRange = content.range(of: "var headers:") else { return }
+        guard let switchRange = content.range(of: "switch self {", range: propRange.upperBound..<content.endIndex) else { return }
+        
+        var append = generateHeaders(APITargetDescriptor: model)
+        append.insert(contentsOf: "\n\t\t", at: append.endIndex)
+        
+        if let switchEnd = content.range(of: "}", range: switchRange.upperBound..<content.endIndex) {
+            content.insert(contentsOf: append, at: switchEnd.lowerBound)
+        }
+    }
+}
