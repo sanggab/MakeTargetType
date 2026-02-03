@@ -242,7 +242,7 @@ extension SettingViewModel {
         }
         
         // Ensure makeTargetTypeDefault returns String. It's in Template.swift (global func inferred).
-        let content = makeTargetTypeDefault(APITargetDescriptor: apiTargetModel)
+        let content = GenerateTemplate.default.makeTargetTypeDefault(APITargetDescriptor: apiTargetModel)
         
         do {
             print("상갑 logEvent \(#function) filURL \(fileURL.path)")

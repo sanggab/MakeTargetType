@@ -7,104 +7,77 @@
 
 import Foundation
 
-func makeTargetTypeDefault(displayName: String) -> String {
-    return ""
-}
-
-func makeTargetTypeDefault(APITargetDescriptor model: APITargetDescriptor) -> String {
+class GenerateTemplate {
+    static let `default` = GenerateTemplate()
     
-    return """
-    //
-    //  \(model.displayName)TargetType.swift
-    //  NetworkCore
-    //
-    //  Created by FileGeneratorUI on \(today()).
-    //  Copyright © \(thisYear()) Yeoboya. All rights reserved.
-    //
-    import Foundation
-    import Alamofire
-    
-    public enum \(model.displayName)TargetType {
-        \(getCaseDefinition(model: model))
-    }
-    
-    extension \(model.displayName)TargetType: TargetType {
-        public var baseURL: URL {
-            switch self {
-            case .\(model.caseName):
-                return URL(string: "\(model.baseUrl)")!
-            }
-        }
-    
-        public var path: String {
-            switch self {
-            case .\(model.caseName):
-                return "\(model.path)"
-            }
-        }
-    
-        public var method: HTTPMethod {
-            switch self {
-            case .\(model.caseName):
-                return .\(model.httpMethod.rawValue.lowercased())
-            }
+    func makeTargetTypeDefault(APITargetDescriptor model: APITargetDescriptor) -> String {
+        return """
+        //
+        //  \(model.displayName)TargetType.swift
+        //  NetworkCore
+        //
+        //  Created by FileGeneratorUI on \(today()).
+        //  Copyright © \(thisYear()) Yeoboya. All rights reserved.
+        //
+        import Foundation
+        import Alamofire
+        
+        public enum \(model.displayName)TargetType {
+            \(generateCaseDefinition(APITargetDescriptor: model))
         }
         
-        public var task: NetworkTask {
-            switch self {
-            \(getTaskName(APITargetDescriptor: model))
+        extension \(model.displayName)TargetType: TargetType {
+            public var baseURL: URL {
+                switch self {
+                \(generateBaseURL(APITargetDescriptor: model))
+                }
             }
-        }
         
-        public var headers: [String : String]? {
-            switch self {
-            case .\(model.caseName):
-                return [
-    \(model.headers.map { "                \"\($0.key)\": \"\($0.value)\"" }.joined(separator: ",\n"))
-                ]
+            public var path: String {
+                switch self {
+                \(generatePath(APITargetDescriptor: model))
+                }
+            }
+        
+            public var method: HTTPMethod {
+                switch self {
+                \(generateMethod(APITargetDescriptor: model))
+                }
+            }
+            
+            public var task: NetworkTask {
+                switch self {
+                \(generateNetworkTask(APITargetDescriptor: model))
+                }
+            }
+            
+            public var headers: [String : String]? {
+                switch self {
+                \(generateHeaders(APITargetDescriptor: model))
+                }
             }
         }
+        """
     }
-    """
-}
-
-func today() -> String {
-    let formatter = DateFormatter()
-    formatter.dateFormat = "yyyy. MM. dd"
-    return formatter.string(from: Date())
-}
-
-func thisYear() -> String {
-    let formatter = DateFormatter()
-    formatter.dateFormat = "yyyy"
-    return formatter.string(from: Date())
 }
 
 func appendTargetTypeCase(fileContent: String, model: APITargetDescriptor) -> String {
-    var content = fileContent
-    
-    // 1. Add Case Definition to Enum
-    let caseDef = getCaseDefinition(model: model)
-    // Find the last '}' of the enum. Assume enum definition ends before the extension.
-    if let enumEndRange = content.range(of: "\n}", options: .backwards, range: content.startIndex..<(content.range(of: "extension")?.lowerBound ?? content.endIndex)) {
-        content.insert(contentsOf: "\n\t\(caseDef)", at: enumEndRange.lowerBound)
-    }
-    
-    getBaseURL(APITargetDescriptor: model, fileContent: &content)
-
-    return content
+    return ""
+//    var content = fileContent
+//    
+//    // 1. Add Case Definition to Enum
+//    let caseDef = getCaseDefinition(model: model)
+//    // Find the last '}' of the enum. Assume enum definition ends before the extension.
+//    if let enumEndRange = content.range(of: "\n}", options: .backwards, range: content.startIndex..<(content.range(of: "extension")?.lowerBound ?? content.endIndex)) {
+//        content.insert(contentsOf: "\n\t\(caseDef)", at: enumEndRange.lowerBound)
+//    }
+//    
+//    insertBaseURL(APITargetDescriptor: model, fileContent: &content)
+//    
+//    inserPath(APITargetDescriptor: model, fileContent: &content)
+//
+//    return content
 }
-
-// Helpers to avoid code duplication
-
-func getCaseDefinition(model: APITargetDescriptor) -> String {
-    if model.caseAssociatedValue.isEmpty {
-        return "case \(model.caseName)"
-    } else {
-        return "case \(model.caseName)(\(model.caseAssociatedValue))"
-    }
-}
-
 
 func getCaseName(APITargetDescriptor model: APITargetDescriptor) -> String {
     let caseName: String
@@ -155,13 +128,30 @@ func getTaskReturn(APITargetDescriptor model: APITargetDescriptor) -> String {
     return taskReturn
 }
 
-func getBaseURL(APITargetDescriptor model: APITargetDescriptor, fileContent content: inout String) {
+func insertBaseURL(APITargetDescriptor model: APITargetDescriptor, fileContent content: inout String) {
     guard let propRange = content.range(of: "var baseURL:") else { return }
     guard let switchRange = content.range(of: "switch self {", range: propRange.upperBound..<content.endIndex) else { return }
     
     let append = """
         case .\(model.caseName):
             \t\treturn URL(string: "\(model.baseUrl)")!\n\t\t
+        """
+    
+    print("상갑 logEvent \(#function) propRange \(propRange)")
+    print("상갑 logEvent \(#function) switchRange \(switchRange)")
+    
+    if let switchEnd = content.range(of: "}", range: switchRange.upperBound..<content.endIndex) {
+        content.insert(contentsOf: append, at: switchEnd.lowerBound)
+    }
+}
+
+func inserPath(APITargetDescriptor model: APITargetDescriptor, fileContent content: inout String) {
+    guard let propRange = content.range(of: "var path:") else { return }
+    guard let switchRange = content.range(of: "switch self {", range: propRange.upperBound..<content.endIndex) else { return }
+    
+    let append = """
+        case .\(model.caseName):
+            \t\treturn "\(model.path)"\n\t\t
         """
     
     print("상갑 logEvent \(#function) propRange \(propRange)")

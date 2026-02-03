@@ -127,6 +127,8 @@ public enum HTTPMethod: String, CaseIterable, Sendable {
     case query = "QUERY"
     /// `TRACE` method.
     case trace = "TRACE"
+    
+    public var id: String { rawValue }
 }
 
 /// Represents an HTTP task.
