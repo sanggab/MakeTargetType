@@ -254,3 +254,8 @@ protocol TargetType {
     var task: NetworkTask { get }
     var headers: [String: String]? { get }
 }
+
+struct Option {
+    var isFolder: Bool = false
+    
+}

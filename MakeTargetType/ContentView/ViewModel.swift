@@ -35,6 +35,10 @@ final class SettingViewModel {
     private(set) var headerKey = ""
     private(set) var headerValue = ""
     
+    private(set) var isFolder: Bool = false
+    
+    let findPath: String = "Projects/Core/Network/Sources/TargetTypes"
+    
     init() {
         var model = APITargetDescriptor()
         model.baseSetting()
@@ -66,10 +70,18 @@ extension SettingViewModel {
 
 extension SettingViewModel {
     func loadTargetTypeList(from projectURL: URL) {
-        let targetTypePath: URL = projectURL.appendingPathComponent("Core/NetWork/Sources/API/TargetType")
+        let targetTypePath: URL = projectURL.appendingPathComponent(findPath)
         do {
             let contents = try FileManager.default.contentsOfDirectory(at: targetTypePath, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles])
-            self.targetTypeList = contents.filter { $0.hasDirectoryPath }.map { $0.lastPathComponent }
+            self.targetTypeList = contents
+                .filter { $0.pathExtension == "swift" }
+                .compactMap { url -> String? in
+                    let fileName = url.deletingPathExtension().lastPathComponent
+                    if fileName.hasSuffix("TargetType") {
+                        return String(fileName.dropLast("TargetType".count))
+                    }
+                    return nil
+                }
         } catch {
             print("상갑 logEvent \(#function) error \(error)")
             self.projectPath = ""
@@ -193,6 +205,10 @@ extension SettingViewModel {
     
     func updateEncodingType(_ encodingType: ParameterEncodingType) {
         self.apiTargetModel.encodingType = encodingType
+    }
+    
+    func updateIsFolder(_ state: Bool) {
+        self.isFolder = state
     }
     
     func reset() {

@@ -16,8 +16,65 @@ extension SettingViewModel {
             
             let targetTypeName = "\(targetModel.displayName)TargetType"
             let fileName = "\(targetTypeName).swift"
+            
+            // 폴더 생성 없이 바로 경로 설정
+            let directoryPath = baseProjectURL.appendingPathComponent(findPath)
+            let fileURL = directoryPath.appendingPathComponent(fileName)
+            let fileManager = FileManager.default
+            
+            // 혹시 모르니 기본 경로는 생성 확인
+            try createDirectory(directoryPath: directoryPath)
+            
+            if fileManager.fileExists(atPath: fileURL.path) {
+                // 파일이 존재하면 Case 추가
+                do {
+                    var existingContent = try String(contentsOf: fileURL, encoding: .utf8)
+                    let newContent = GenerateTemplate.default.appendTargetTypeCase(fileContent: &existingContent, model: apiTargetModel)
+                    try newContent.write(to: fileURL, atomically: true, encoding: .utf8)
+                    
+                    print("상갑 logEvent \(#function) success appended \(fileURL.path)")
+                    self.showAlert("성공", "\(fileName) 파일에 새로운 Case가 추가되었습니다.")
+                    self.loadTargetTypeList(from: baseProjectURL)
+                    self.successCreateFile()
+                } catch {
+                    print("상갑 logEvent \(#function) append error \(error)")
+                    self.showAlert("에러", "파일 수정 중 오류가 발생했습니다.\n\(error.localizedDescription)")
+                }
+            } else {
+                // 파일이 없으면 새로 생성
+                let content = GenerateTemplate.default.makeTargetTypeDefault(APITargetDescriptor: apiTargetModel)
+                
+                print("상갑 logEvent \(#function) fileURL \(fileURL.path)")
+                
+                try content.write(to: fileURL, atomically: true, encoding: .utf8)
+                print("상갑 logEvent \(#function) success created \(fileURL.path)")
+                self.showAlert("성공", "\(fileName) 파일이 생성되었습니다.")
+                
+                self.loadTargetTypeList(from: baseProjectURL)
+                self.successCreateFile()
+            }
+        } catch {
+            switch error {
+            case let validateError as ValidateError:
+                self.showAlert(validateError.alert)
+            default:
+                self.showAlert("에러", "파일 생성 중 오류가 발생했습니다.\n\(error.localizedDescription)")
+            }
+        }
+    }
+}
+
+extension SettingViewModel {
+    func createTargetTypeFileWithFolder() {
+        do {
+            let baseProjectURL = try validateProjectURL()
+            let targetModel = try validateDisplayName(APITargetDescriptor: self.apiTargetModel)
+            try validateCasseName(APITargetDescriptor: self.apiTargetModel)
+            
+            let targetTypeName = "\(targetModel.displayName)TargetType"
+            let fileName = "\(targetTypeName).swift"
             // Construct path: projectPath/Core/NetWork/Sources/API/TargetType/displayName
-            let directoryPath = baseProjectURL.appendingPathComponent("Core/NetWork/Sources/API/TargetType").appendingPathComponent(targetModel.displayName)
+            let directoryPath = baseProjectURL.appendingPathComponent(findPath).appendingPathComponent(targetModel.displayName)
             
             let fileURL = directoryPath.appendingPathComponent(fileName)
             

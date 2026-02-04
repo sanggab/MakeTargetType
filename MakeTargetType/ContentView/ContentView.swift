@@ -15,7 +15,7 @@ struct ContentView: View {
     
     var body: some View {
         let _ = Self._printChanges()
-        HStack(alignment: .center) {
+        HStack(alignment: .top) {
             VStack(alignment: .leading) {
                 
                 selectedProjectPathView
@@ -25,9 +25,14 @@ struct ContentView: View {
                 targetTypeListView
                 
                 inputList
+                
+                createFileView
             }
-            .padding(.all, 10)
+            
+            optionView
+            
         }
+        .padding(.all, 10)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .alert(
             viewModel.alertModel.title,
@@ -85,6 +90,30 @@ extension ContentView {
         }
     }
 }
+
+extension ContentView {
+    @ViewBuilder
+    var createFileView: some View {
+        HStack {
+            Spacer()
+            Button {
+//                viewModel.createTargetTypeFile()
+                viewModel.isFolder ? viewModel.createTargetTypeFileWithFolder() : viewModel.createTargetTypeFile()
+            } label: {
+                Text("파일 생성하기")
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 16)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+//                    .disabled(viewModel.apiTargetModel.displayName.isEmpty || viewModel.projectPath.isEmpty)
+            }
+//            .disabled(viewModel.apiTargetModel.displayName.isEmpty || viewModel.projectPath.isEmpty)
+        }
+        .padding(.top, 20)
+    }
+}
+
 
 #Preview {
     ContentView()
