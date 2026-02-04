@@ -56,6 +56,26 @@ public struct APITargetDescriptor {
         self.headers = headers
         self.taskKind = taskKind
     }
+    
+    public mutating func baseSetting() {
+        self.displayName = ""
+        self.caseName = ""
+        self.caseAssociatedValue = ""
+        self.baseUrl = ""
+        self.path = ""
+        self.httpMethod = .get
+        self.headers = [
+            HeaderItem(
+                key: "Content-Type",
+                value: "application/json"
+            ),
+            HeaderItem(
+                key: "Accept-Language",
+                value: "ko"
+            ),
+        ]
+        self.taskKind = .requestPlain
+    }
 }
 
 public enum NetworkTaskKind: String, CaseIterable, Identifiable {

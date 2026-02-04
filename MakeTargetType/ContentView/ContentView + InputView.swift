@@ -188,8 +188,9 @@ extension ContentView {
                     .background(Color.blue)
                     .foregroundColor(.white)
                     .cornerRadius(8)
+//                    .disabled(viewModel.apiTargetModel.displayName.isEmpty || viewModel.projectPath.isEmpty)
             }
-            .disabled(viewModel.apiTargetModel.displayName.isEmpty || viewModel.projectPath.isEmpty)
+//            .disabled(viewModel.apiTargetModel.displayName.isEmpty || viewModel.projectPath.isEmpty)
         }
         .padding(.top, 20)
     }

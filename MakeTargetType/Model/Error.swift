@@ -14,6 +14,7 @@ enum ValidateError: Error {
     enum Missing: Error {
         case projectURL
         case displayName
+        case caseName
     }
     
     enum Create: Error {
@@ -36,6 +37,11 @@ extension ValidateError {
                     title: "에러",
                     message: "Display Name(모델 네이밍)을 입력해주세요."
                 )
+            case .caseName:
+                AlertModel(
+                    title: "에러",
+                    message: "Case Name(모델 네이밍)을 입력해주세요."
+                )
             }
         case .create(let createError):
             switch createError {
@@ -56,6 +62,8 @@ extension ValidateError.Missing: LocalizedError {
             return "projectURL 미 설정 에러"
         case .displayName:
             return "displayName 미 입력 에러"
+        case .caseName:
+            return "caseName 미 입력 에러"
         }
     }
 }

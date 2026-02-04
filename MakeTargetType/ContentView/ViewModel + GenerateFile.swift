@@ -12,6 +12,7 @@ extension SettingViewModel {
         do {
             let baseProjectURL = try validateProjectURL()
             let targetModel = try validateDisplayName(APITargetDescriptor: self.apiTargetModel)
+            try validateCasseName(APITargetDescriptor: self.apiTargetModel)
             
             let targetTypeName = "\(targetModel.displayName)TargetType"
             let fileName = "\(targetTypeName).swift"
@@ -52,6 +53,8 @@ extension SettingViewModel {
             // Refresh list (reload from root project path)
             self.loadTargetTypeList(from: baseProjectURL)
             
+            self.successCreateFile()
+            
         } catch {
             switch error {
             case let validateError as ValidateError:
@@ -77,6 +80,16 @@ extension SettingViewModel {
     func validateDisplayName(APITargetDescriptor model: APITargetDescriptor) throws -> APITargetDescriptor {
         guard !model.displayName.isEmpty else {
             throw ValidateError.missing(.displayName)
+        }
+        
+        return model
+    }
+}
+
+extension SettingViewModel {
+    func validateCasseName(APITargetDescriptor model: APITargetDescriptor) throws -> APITargetDescriptor {
+        guard !model.caseName.isEmpty else {
+            throw ValidateError.missing(.caseName)
         }
         
         return model

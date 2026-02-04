@@ -30,24 +30,15 @@ final class SettingViewModel {
     private(set) var targetTypeList: [String] = []
     private(set) var presentAlert = false
     private(set) var alertModel = AlertModel()
-    private(set) var apiTargetModel = APITargetDescriptor()
+    private(set) var apiTargetModel: APITargetDescriptor
     
     private(set) var headerKey = ""
     private(set) var headerValue = ""
     
     init() {
-        let defaultHeaderItem = [
-            HeaderItem(
-                key: "Content-Type",
-                value: "application/json"
-            ),
-            HeaderItem(
-                key: "Accept-Language",
-                value: "ko"
-            ),
-        ]
-        
-        self.apiTargetModel.headers.append(contentsOf: defaultHeaderItem)
+        var model = APITargetDescriptor()
+        model.baseSetting()
+        self.apiTargetModel = model
     }
 }
 
@@ -170,7 +161,6 @@ extension SettingViewModel {
     
     func updateAPITargetHeader() {
         guard !self.headerKey.isEmpty, !self.headerValue.isEmpty else { return }
-        // Array based addition
         let newItem = HeaderItem(key: self.headerKey, value: self.headerValue)
         self.apiTargetModel.headers.append(newItem)
         print("상갑 logEvent \(#function) added httpHeaders \(self.headerKey): \(self.headerValue)")
@@ -186,10 +176,16 @@ extension SettingViewModel {
     }
     
     func removeHeader(key: String) {
-        // Fallback or convenient removal by key (removes first occurrence)
         if let index = self.apiTargetModel.headers.firstIndex(where: { $0.key == key }) {
             self.apiTargetModel.headers.remove(at: index)
             print("상갑 logEvent \(#function) removed headers key: \(key)")
         }
+    }
+    
+    func successCreateFile() {
+        self.apiTargetModel.baseSetting()
+        self.clearAlertModel()
+        self.updateHeaderKey(key: "")
+        self.updateHeaderValue(value: "")
     }
 }
