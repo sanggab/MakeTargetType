@@ -35,26 +35,26 @@ extension SettingViewModel {
                     print("상갑 logEvent \(#function) success appended \(fileURL.path)")
                     self.showAlert("성공", "\(fileName) 파일에 새로운 Case가 추가되었습니다.")
                     self.loadTargetTypeList(from: baseProjectURL)
+                    self.successCreateFile()
                 } catch {
                     print("상갑 logEvent \(#function) append error \(error)")
                     self.showAlert("에러", "파일 수정 중 오류가 발생했습니다.\n\(error.localizedDescription)")
                 }
                 return
+            } else {
+                // Ensure makeTargetTypeDefault returns String. It's in Template.swift (global func inferred).
+                let content = GenerateTemplate.default.makeTargetTypeDefault(APITargetDescriptor: apiTargetModel)
+                
+                print("상갑 logEvent \(#function) filURL \(fileURL.path)")
+                
+                try content.write(to: fileURL, atomically: true, encoding: .utf8)
+                print("상갑 logEvent \(#function) success created \(fileURL.path)")
+                self.showAlert("성공", "\(fileName) 파일이 생성되었습니다.")
+                // Refresh list (reload from root project path)
+                self.loadTargetTypeList(from: baseProjectURL)
+                
+                self.successCreateFile()
             }
-            
-            // Ensure makeTargetTypeDefault returns String. It's in Template.swift (global func inferred).
-            let content = GenerateTemplate.default.makeTargetTypeDefault(APITargetDescriptor: apiTargetModel)
-            
-            print("상갑 logEvent \(#function) filURL \(fileURL.path)")
-            
-            try content.write(to: fileURL, atomically: true, encoding: .utf8)
-            print("상갑 logEvent \(#function) success created \(fileURL.path)")
-            self.showAlert("성공", "\(fileName) 파일이 생성되었습니다.")
-            // Refresh list (reload from root project path)
-            self.loadTargetTypeList(from: baseProjectURL)
-            
-            self.successCreateFile()
-            
         } catch {
             switch error {
             case let validateError as ValidateError:
@@ -87,12 +87,10 @@ extension SettingViewModel {
 }
 
 extension SettingViewModel {
-    func validateCasseName(APITargetDescriptor model: APITargetDescriptor) throws -> APITargetDescriptor {
+    func validateCasseName(APITargetDescriptor model: APITargetDescriptor) throws {
         guard !model.caseName.isEmpty else {
             throw ValidateError.missing(.caseName)
         }
-        
-        return model
     }
 }
 

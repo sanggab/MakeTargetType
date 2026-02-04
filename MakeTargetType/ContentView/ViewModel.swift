@@ -109,6 +109,12 @@ extension SettingViewModel {
 }
 
 extension SettingViewModel {
+    func selectedTargetType(_ displayName: String) {
+        if self.apiTargetModel.displayName != displayName && !self.apiTargetModel.displayName.isEmpty {
+            self.reset()
+        }
+        self.apiTargetModel.displayName = displayName
+    }
     func updateDisplayName(_ displayName: String) {
         guard self.apiTargetModel.displayName != displayName else { return }
         self.apiTargetModel.displayName = displayName
@@ -148,6 +154,9 @@ extension SettingViewModel {
     func updateTaskKind(_ kind: NetworkTaskKind) {
         guard self.apiTargetModel.taskKind != kind else { return }
         self.apiTargetModel.taskKind = kind
+        if kind == .requestPlain {
+            self.updateEncodingType(.json)
+        }
         print("상갑 logEvent \(#function) taskKind \(self.apiTargetModel.taskKind)")
     }
     
@@ -182,9 +191,20 @@ extension SettingViewModel {
         }
     }
     
-    func successCreateFile() {
+    func updateEncodingType(_ encodingType: ParameterEncodingType) {
+        self.apiTargetModel.encodingType = encodingType
+    }
+    
+    func reset() {
         self.apiTargetModel.baseSetting()
         self.clearAlertModel()
+        self.updateHeaderKey(key: "")
+        self.updateHeaderValue(value: "")
+    }
+    
+    func successCreateFile() {
+        self.apiTargetModel.baseSetting()
+//        self.clearAlertModel()
         self.updateHeaderKey(key: "")
         self.updateHeaderValue(value: "")
     }

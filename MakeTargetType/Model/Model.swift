@@ -21,8 +21,8 @@ public struct HeaderItem: Identifiable, Equatable, Hashable {
 }
 
 public enum ParameterEncodingType: String, CaseIterable, Identifiable {
-    case url = "URLEncoding.default"
     case json = "JSONEncoding.default"
+    case url = "URLEncoding.default"
     
     public var id: String { rawValue }
 }
@@ -36,6 +36,7 @@ public struct APITargetDescriptor {
     public var httpMethod: HTTPMethod
     public var headers: [HeaderItem]
     public var taskKind: NetworkTaskKind
+    public var encodingType: ParameterEncodingType
     
     public init(
         displayName: String = "",
@@ -46,6 +47,7 @@ public struct APITargetDescriptor {
         httpMethod: HTTPMethod = .get,
         headers: [HeaderItem] = [],
         taskKind: NetworkTaskKind = .requestPlain,
+        encodingType: ParameterEncodingType = .json
     ) {
         self.displayName = displayName
         self.caseName = caseName
@@ -55,6 +57,7 @@ public struct APITargetDescriptor {
         self.httpMethod = httpMethod
         self.headers = headers
         self.taskKind = taskKind
+        self.encodingType = encodingType
     }
     
     public mutating func baseSetting() {
@@ -75,6 +78,7 @@ public struct APITargetDescriptor {
             ),
         ]
         self.taskKind = .requestPlain
+        self.encodingType = .json
     }
 }
 

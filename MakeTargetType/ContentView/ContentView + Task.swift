@@ -24,6 +24,18 @@ extension ContentView {
                 }
             }
             
+            if viewModel.apiTargetModel.taskKind == .requestParameters {
+                Menu(viewModel.apiTargetModel.encodingType.rawValue) {
+                    ForEach(ParameterEncodingType.allCases) { type in
+                        Button {
+                            viewModel.updateEncodingType(type)
+                        } label: {
+                            Text(type.rawValue)
+                        }
+                    }
+                }
+            }
+            
             Spacer()
         }
         

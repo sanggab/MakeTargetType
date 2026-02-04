@@ -96,7 +96,14 @@ extension GenerateTemplate {
         case .requestPlain:
             "return .\(model.taskKind.id)"
         case .requestParameters:
-            "return .\(model.taskKind.id)(parameters: params, encoding: JSONEncoding.default)"
+            "return .\(model.taskKind.id)(parameters: params, encoding: \(getEncodingType(APITargetDescriptor: model)))"
+        }
+    }
+    
+    private func getEncodingType(APITargetDescriptor model: APITargetDescriptor) -> String {
+        switch model.encodingType {
+        case .json: "JSONEncoding.default"
+        case .url: "URLEncoding.queryString"
         }
     }
 }

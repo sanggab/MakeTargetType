@@ -68,7 +68,7 @@ extension ContentView {
                     HStack(spacing: 10) {
                         ForEach(viewModel.targetTypeList, id: \.self) { id in
                             Button {
-                                viewModel.updateDisplayName(id)
+                                viewModel.selectedTargetType(id)
                             } label: {
                                 Text(id)
                             }
